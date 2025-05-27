@@ -4,6 +4,14 @@ pub struct CourseCapacity(pub u32);
 impl CourseCapacity {
     const MAX_PER_SECTION: u32 = 45;
 
+        pub fn new(value: u32) -> Result<Self, String> {
+        if value > 0 {
+            Ok(Self(value))
+        } else {
+            Err("La capacidad debe ser mayor a 0".to_string())
+        }
+    }
+
     pub fn is_valid(&self) -> bool {
         self.0 > 0
     }

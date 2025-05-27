@@ -1,4 +1,4 @@
-use super::{
+pub use super::{
     course_code::CourseCode,
     course_name::CourseName,
     course_section::CourseSection,
@@ -6,6 +6,7 @@ use super::{
     course_capacity::CourseCapacity,
     course_credits::CourseCredits,
     course_cycle::CourseCycle,
+    course_schedule::Schedule,
 };
 
 #[derive(Debug, Clone)]
@@ -20,4 +21,7 @@ pub struct Course {
     pub teacher_id: String,
     pub facility_id: String,
     pub cycle: CourseCycle,
+    pub enrolled: u32,
+    pub schedule: Vec<Schedule>,
 }
+
