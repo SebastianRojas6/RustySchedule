@@ -74,7 +74,7 @@ fn debug_course(course: &Course) {
 
 fn debug_user(user: &User) {
     println!("Code: {:?}", user.code.value());
-    println!("Faculty: {:?}", user.faculty);
-    println!("Program: {:?}", user.program);
-    println!("Specialty: {:?}", user.specialty);
+    println!("Faculty: {:?}", user.faculty.value());
+    println!("Program: {:?}", user.program.value());
+    println!("Specialty: {:?}", user.specialty.value());
 }
