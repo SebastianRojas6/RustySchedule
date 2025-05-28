@@ -1,12 +1,6 @@
 pub use super::{
-    course_code::CourseCode,
-    course_name::CourseName,
-    course_section::CourseSection,
-    course_curriculum::CourseCurriculum,
-    course_capacity::CourseCapacity,
-    course_credits::CourseCredits,
-    course_cycle::CourseCycle,
-    course_schedule::Schedule,
+    course_capacity::CourseCapacity, course_code::CourseCode, course_credits::CourseCredits, course_curriculum::CourseCurriculum, course_cycle::CourseCycle, course_name::CourseName,
+    course_schedule::Schedule, course_section::CourseSection,
 };
 
 #[derive(Debug, Clone)]

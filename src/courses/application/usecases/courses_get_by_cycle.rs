@@ -2,10 +2,10 @@ use crate::courses::domain::course::{Course, CourseCycle};
 use crate::courses::domain::course_repository::CourseRepository;
 
 /*use crate::courses::domain::course_schedule::{
-    Day,
-    SessionType,};*/
+Day,
+SessionType,};*/
 
-    pub struct GetCoursesByCycleUseCase<R: CourseRepository> {
+pub struct GetCoursesByCycleUseCase<R: CourseRepository> {
     repository: R,
 }
 
