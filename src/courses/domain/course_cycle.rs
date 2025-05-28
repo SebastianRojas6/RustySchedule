@@ -1,8 +1,8 @@
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub struct CourseCycle(pub u8);
+pub struct CourseCycle(pub i32);
 
 impl CourseCycle {
-    pub fn new(value: u8) -> Result<Self, String> {
+    pub fn new(value: i32) -> Result<Self, String> {
         if value >= 1 && value <= 10 {
             Ok(Self(value))
         } else {
@@ -16,5 +16,10 @@ impl CourseCycle {
 
     pub fn is_odd(&self) -> bool {
         self.0 % 2 == 1
+    }
+
+    //value
+    pub fn value(&self) -> i32 {
+        self.0
     }
 }

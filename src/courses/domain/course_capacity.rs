@@ -1,10 +1,10 @@
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct CourseCapacity(pub u32);
+pub struct CourseCapacity(pub i32);
 
 impl CourseCapacity {
-    const MAX_PER_SECTION: u32 = 45;
+    const MAX_PER_SECTION: i32 = 45;
 
-        pub fn new(value: u32) -> Result<Self, String> {
+        pub fn new(value: i32) -> Result<Self, String> {
         if value > 0 {
             Ok(Self(value))
         } else {
@@ -16,7 +16,7 @@ impl CourseCapacity {
         self.0 > 0
     }
 
-    pub fn total_students(&self) -> u32 {
+    pub fn total_students(&self) -> i32 {
         self.0
     }
 
@@ -30,5 +30,9 @@ impl CourseCapacity {
         } else {
             ((self.0 + Self::MAX_PER_SECTION - 1) / Self::MAX_PER_SECTION) as u8
         }
+    }
+
+    pub fn value(&self) -> i32 {
+        self.0
     }
 }

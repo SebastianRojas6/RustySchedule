@@ -21,7 +21,6 @@ pub struct Course {
     pub teacher_id: String,
     pub facility_id: String,
     pub cycle: CourseCycle,
-    pub enrolled: u32,
+    pub enrolled: i32,
     pub schedule: Vec<Schedule>,
 }
-

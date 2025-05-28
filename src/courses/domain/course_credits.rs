@@ -1,8 +1,8 @@
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct CourseCredits(pub u8);
+pub struct CourseCredits(pub i32);
 
 impl CourseCredits {
-    pub fn new(credits: u8) -> Result<Self, String> {
+    pub fn new(credits: i32) -> Result<Self, String> {
         if credits == 0 || credits > 4 {
             Err("Tiene que estar entre 1 y 4 ".to_string())
         } else {
@@ -10,7 +10,7 @@ impl CourseCredits {
         }
     }
 
-    pub fn value(&self) -> u8 {
+    pub fn value(&self) -> i32 {
         self.0
     }
 }
