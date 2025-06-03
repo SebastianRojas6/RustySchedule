@@ -1,0 +1,13 @@
+[package]
+name = "main"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+
+[dependencies]
+student_system = { path = "../student_system" }
+teacher_system = { path = "../teacher_system" }
+
+[[bin]]
+name = "Schedule"
+path = "src/main.rs"
