@@ -1,8 +1,13 @@
 [workspace]
+
 resolver = "2"
-members = ["crates/student_system", "crates/teacher_system", "crates/main"]
+members = ["crates/student_system", 
+            "crates/teacher_system",
+            "crates/main"]
 
 [workspace.package]
+
 version = "0.1.0"
+rust-version = "1.72"
 edition = "2021"
 authors = ["sebastianrojas", "lazaro"]
