@@ -1,3 +1,5 @@
+use super::SemesterParity;
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct CourseCycle(u8);
 
