@@ -8,6 +8,7 @@ use super::CurriculumId;
 use super::StudentStatus;
 use super::CourseCycle;
 use super::SemesterParity;
+use super::error::EnrollmentError;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Enrollment {
@@ -99,18 +100,4 @@ impl Enrollment {
     pub fn complete(&mut self) {
         self.status = EnrollmentStatus::Completed;
     }
-}
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub enum EnrollmentError {
-    AlreadyEnrolled,
-    CurriculumMismatch,
-    CourseAlreadyPassed,
-    MissingPrerequisites,
-    ExceedsCreditLimit,
-    ExceedsObservedLimit,
-    SectionFull,
-    ScheduleConflict,
-    InvalidCycleForSemester,
-    CourseRepeatLimitExceeded,
 }

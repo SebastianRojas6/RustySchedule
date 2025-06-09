@@ -9,6 +9,7 @@ pub mod curriculum_id;
 pub mod student_status;
 pub mod course_cycle;
 pub mod semester_parity;
+pub mod error;
 
 pub use course_id::CourseId;
 pub use enrollment::Enrollment;
@@ -21,3 +22,4 @@ pub use curriculum_id::CurriculumId;
 pub use student_status::StudentStatus;
 pub use course_cycle::CourseCycle;
 pub use semester_parity::SemesterParity;
+pub use error::EnrollmentError;
