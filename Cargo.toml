@@ -3,6 +3,7 @@
 resolver = "2"
 members = ["crates/student_system", 
             "crates/teacher_system",
+            "crates/shared",
             "crates/main"]
 
 [workspace.package]

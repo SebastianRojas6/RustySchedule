@@ -1,14 +1,13 @@
 [package]
-name = "student_system"
+name = "shared"
 version.workspace = true
 edition.workspace = true
 authors.workspace = true
 rust-version.workspace = true
 
 [dependencies]
-async-trait = "0.1.88"
-thiserror = "2.0.12"
 sea-orm = "1.1.12"
+tokio = { version = "1", features = ["full"] }
 
 [lib]
 path = "lib.rs"
