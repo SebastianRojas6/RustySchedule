@@ -9,6 +9,8 @@ rust-version.workspace = true
 async-trait = "0.1.88"
 thiserror = "2.0.12"
 sea-orm = "1.1.12"
+shared = { path = "../shared" }
+
 
 [lib]
 path = "lib.rs"

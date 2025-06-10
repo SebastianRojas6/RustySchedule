@@ -1,7 +1,7 @@
 use std::ops::Add;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub struct CreditAmount(u8);
+pub struct CreditAmount(pub u8);
 
 impl CreditAmount {
     pub const MAX_CREDITS_REGULAR: u8 = 26;
