@@ -1,4 +1,5 @@
 use thiserror::Error;
+use super::enrollment_status::EnrollmentStatus;
 
 #[derive(Debug, Clone, PartialEq, Eq, Error)]
 pub enum EnrollmentError {
@@ -32,4 +33,7 @@ pub enum EnrollmentError {
     
     #[error("Course repeat limit exceeded")]
     CourseRepeatLimitExceeded,
+
+    #[error("Cannot complete enrollment when status is {0:?}")]
+    InvalidCompletionState(EnrollmentStatus),
 }

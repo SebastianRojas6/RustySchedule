@@ -43,6 +43,8 @@ pub enum EnrollmentStatus {
     Failed,
     #[sea_orm(string_value = "pending")]
     Pending,
+    #[sea_orm(string_value = "dropped")]
+    Dropped,
 }
 #[derive(Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum)]
 #[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "session_type")]

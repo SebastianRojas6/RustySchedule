@@ -1,10 +1,14 @@
 use std::fmt;
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum EnrollmentStatus {
     Enrolled,
     Dropped,
     Completed,
+    Withdrawn,
+    Failed,
+    Pending,
 }
 
 impl EnrollmentStatus {
@@ -13,6 +17,9 @@ impl EnrollmentStatus {
             EnrollmentStatus::Enrolled => "Enrolled",
             EnrollmentStatus::Dropped => "Dropped",
             EnrollmentStatus::Completed => "Completed",
+            EnrollmentStatus::Withdrawn => "Withdrawn",
+            EnrollmentStatus::Failed => "Failed",
+            EnrollmentStatus::Pending => "Pending",
         }
     }
 }
@@ -31,6 +38,9 @@ impl std::str::FromStr for EnrollmentStatus {
             "Enrolled" => Ok(EnrollmentStatus::Enrolled),
             "Dropped" => Ok(EnrollmentStatus::Dropped),
             "Completed" => Ok(EnrollmentStatus::Completed),
+            "Withdrawn" => Ok(EnrollmentStatus::Withdrawn),
+            "Failed" => Ok(EnrollmentStatus::Failed),
+            "Pending" => Ok(EnrollmentStatus::Pending),
             _ => Err(()),
         }
     }

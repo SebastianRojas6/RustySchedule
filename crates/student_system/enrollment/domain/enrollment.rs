@@ -10,7 +10,9 @@ use super::CourseCycle;
 use super::SemesterParity;
 use super::error::EnrollmentError;
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+use serde::{Serialize, Deserialize};
+
+#[derive(Debug, Clone, PartialEq, Eq , Serialize, Deserialize)]
 pub struct Enrollment {
     pub id: EnrollmentId,
     pub student_id: UserId,
@@ -97,7 +99,14 @@ impl Enrollment {
         self.status = EnrollmentStatus::Dropped;
     }
 
-    pub fn complete(&mut self) {
-        self.status = EnrollmentStatus::Completed;
+    pub fn complete(&mut self) -> Result<(), EnrollmentError> {
+    match self.status {
+        EnrollmentStatus::Enrolled => {
+            self.status = EnrollmentStatus::Completed;
+            Ok(())
+        }
+        _ => Err(EnrollmentError::InvalidCompletionState(self.status.clone())),
     }
+}
+
 }
