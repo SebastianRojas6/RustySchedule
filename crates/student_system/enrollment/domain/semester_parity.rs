@@ -20,10 +20,11 @@ impl TryFrom<&str> for SemesterParity {
     type Error = ();
 
     fn try_from(value: &str) -> Result<Self, Self::Error> {
-        match value {
-            "Even" => Ok(SemesterParity::Even),
-            "Odd" => Ok(SemesterParity::Odd),
+        match value.to_lowercase().as_str() {
+            "even" => Ok(SemesterParity::Even),
+            "odd" => Ok(SemesterParity::Odd),
             _ => Err(()),
         }
     }
 }
+

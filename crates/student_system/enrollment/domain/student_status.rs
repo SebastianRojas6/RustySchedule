@@ -28,9 +28,9 @@ impl TryFrom<&str> for StudentStatus {
     type Error = ();
 
     fn try_from(value: &str) -> Result<Self, Self::Error> {
-        match value {
-            "Regular" => Ok(StudentStatus::Regular),
-            "Observed" => Ok(StudentStatus::Observed),
+        match value.to_lowercase().as_str() {
+            "regular" => Ok(StudentStatus::Regular),
+            "observed" => Ok(StudentStatus::Observed),
             _ => Err(()),
         }
     }

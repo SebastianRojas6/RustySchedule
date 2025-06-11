@@ -1,8 +1,10 @@
 use actix_web::{App, HttpServer};
+use dotenv::dotenv;
 use student_system::enrollment::infrastructure::actix_web_router::configure_enrollment_routes;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
+    dotenv().ok();
     println!("Servidor corriendo en http://localhost:8080");
 
     HttpServer::new(|| {
