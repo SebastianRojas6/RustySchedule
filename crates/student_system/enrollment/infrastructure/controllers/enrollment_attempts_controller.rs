@@ -1,6 +1,7 @@
-/*use actix_web::{web, HttpResponse};
+use actix_web::{web, HttpResponse};
 use crate::enrollment::infrastructure::use_cases::repository::SupabaseEnrollmentRepository;
 use crate::enrollment::domain::{UserId, CourseId};
+use crate::enrollment::domain::EnrollmentRepository;
 
 pub async fn enrollment_attempts_handler(
     path: web::Path<(String, String)>,
@@ -21,4 +22,4 @@ pub async fn enrollment_attempts_handler(
     let attempts = repository.enrollment_attempts(&student_id, &course_id).await;
 
     HttpResponse::Ok().json(attempts)
-}*/
+}

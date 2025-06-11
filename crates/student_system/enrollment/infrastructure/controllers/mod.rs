@@ -7,6 +7,8 @@ pub mod completed_list_of_courses_controller;
 pub mod total_credits_enrolled_controller;
 pub mod complete_courses_controller;
 pub mod enrollment_attempts_controller;
+pub mod enroll_in_course_dto;
+pub mod enroll_in_course_controller;
 
 pub use save_controller::save_handler;
 pub use find_by_id_controller::find_by_id_handler;
@@ -16,5 +18,6 @@ pub use current_enrollments_controller::current_enrollments_handler;
 pub use completed_list_of_courses_controller::completed_list_of_courses_handler;
 pub use total_credits_enrolled_controller::total_credits_enrolled_handler;
 pub use complete_courses_controller::complete_course_handler;
-
-//pub use enrollment_attempts_controller::enrollment_attempts_handler;
+pub use enroll_in_course_controller::enroll_in_course_handler;
+pub use enroll_in_course_dto::EnrollInCourseRequestDto;
+pub use enrollment_attempts_controller::enrollment_attempts_handler;

@@ -1,5 +1,6 @@
 use serde::{Serialize, Deserialize};
 use std::fmt;
+use uuid::Uuid;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct EnrollmentId(String);
@@ -12,6 +13,10 @@ impl EnrollmentId {
 
     pub fn value(&self) -> &str {
         &self.0
+    }
+    
+    pub fn generate() -> Self {
+        Self(Uuid::new_v4().to_string())
     }
 }
 

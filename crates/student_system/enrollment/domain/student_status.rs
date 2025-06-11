@@ -1,4 +1,5 @@
 use super::CreditAmount;
+use std::convert::TryFrom;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum StudentStatus {
@@ -19,6 +20,18 @@ impl StudentStatus {
         match self {
             StudentStatus::Regular => CreditAmount::MAX_CREDITS_REGULAR,
             StudentStatus::Observed => CreditAmount::MAX_CREDITS_OBSERVED,
+        }
+    }
+}
+
+impl TryFrom<&str> for StudentStatus {
+    type Error = ();
+
+    fn try_from(value: &str) -> Result<Self, Self::Error> {
+        match value {
+            "Regular" => Ok(StudentStatus::Regular),
+            "Observed" => Ok(StudentStatus::Observed),
+            _ => Err(()),
         }
     }
 }
