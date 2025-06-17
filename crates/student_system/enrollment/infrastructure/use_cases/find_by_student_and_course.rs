@@ -11,8 +11,7 @@ pub async fn find_by_student_and_course(
     let result = enrollments::Entity::find()
         .filter(
             enrollments::Column::StudentId.eq(student_id.value())
-                .and(enrollments::Column::CourseId.eq(course_id.value())),
-        )
+                .and(enrollments::Column::CourseId.eq(course_id.value())),)
         .one(db)
         .await
         .ok()??;

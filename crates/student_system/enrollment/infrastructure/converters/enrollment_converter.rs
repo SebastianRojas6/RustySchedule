@@ -1,6 +1,4 @@
-use crate::enrollment::domain::{
-    Enrollment, EnrollmentId, UserId, CourseId, EnrollmentStatus as DomainStatus,
-};
+use crate::enrollment::domain::{Enrollment, EnrollmentId, UserId, CourseId, EnrollmentStatus as DomainStatus,};
 use crate::enrollment::infrastructure::entity::enrollments::Model as EnrollmentModel;
 use crate::enrollment::infrastructure::entity::sea_orm_active_enums::EnrollmentStatus as InfraStatus;
 
