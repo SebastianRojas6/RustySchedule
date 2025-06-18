@@ -15,6 +15,6 @@ pub async fn enrollment_attempts(
         .count(db)
         .await
         .unwrap_or(0);
-
+    
     count as u8
 }

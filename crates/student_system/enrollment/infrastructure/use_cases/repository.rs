@@ -91,8 +91,7 @@ impl EnrollmentRepository for SupabaseEnrollmentRepository {
                 eprintln!("[WARN] Error al obtener matrículas actuales: {:?}", err);
                 vec![]
             }
-        }
-    }
+        }}
 
     async fn find_by_student_and_course(&self, student_id: &UserId, course_id: &CourseId) -> Option<Enrollment> {
         use enrollment_entity::Entity as Enrollment;
