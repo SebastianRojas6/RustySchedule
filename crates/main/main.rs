@@ -7,9 +7,7 @@ use student_system::enrollment::infrastructure::actix_web_router::configure_enro
 async fn main() -> std::io::Result<()> {
     dotenv().ok();
 
-    let repo = init_enrollment_repo()
-        .await
-        .expect("Error conectando con Supabase");
+    let repo = init_enrollment_repo().await.expect("Error conectando con Supabase");
 
     let address = "127.0.0.1:8080";
 
