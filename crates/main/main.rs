@@ -1,4 +1,4 @@
-use actix_web::{App, HttpServer, web};
+use actix_web::{web, App, HttpServer};
 use dotenv::dotenv;
 use student_system::bootstrap::init_enrollment_repo;
 use student_system::enrollment::infrastructure::actix_web_router::configure_enrollment_routes;
@@ -15,12 +15,8 @@ async fn main() -> std::io::Result<()> {
     println!("--> Servidor iniciado con éxito");
     println!("Escuchando en: http://{}", address);
 
-    HttpServer::new(move || {
-        App::new()
-            .app_data(web::Data::from(repo.clone()))
-            .configure(configure_enrollment_routes)
-    })
-    .bind(address)?
-    .run()
-    .await
+    HttpServer::new(move || App::new().app_data(web::Data::from(repo.clone())).configure(configure_enrollment_routes))
+        .bind(address)?
+        .run()
+        .await
 }
