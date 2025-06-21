@@ -25,24 +25,14 @@ pub struct Model {
     pub max_hours_per_week: Option<i32>,
     pub hire_date: Option<Date>,
     pub active: Option<bool>,
-    pub created_at: Option<DateTime>,
-    pub updated_at: Option<DateTime>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
 pub enum Relation {
-    #[sea_orm(has_many = "super::academic_periods::Entity")]
-    AcademicPeriods,
     #[sea_orm(has_many = "super::courses::Entity")]
     Courses,
     #[sea_orm(has_many = "super::enrollments::Entity")]
     Enrollments,
-}
-
-impl Related<super::academic_periods::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::AcademicPeriods.def()
-    }
 }
 
 impl Related<super::courses::Entity> for Entity {

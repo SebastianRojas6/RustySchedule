@@ -2,7 +2,6 @@
 
 pub mod prelude;
 
-pub mod academic_periods;
 pub mod course_prerequisites;
 pub mod course_schedules;
 pub mod courses;
