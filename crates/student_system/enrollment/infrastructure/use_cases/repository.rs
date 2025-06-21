@@ -49,7 +49,7 @@ impl EnrollmentRepository for SupabaseEnrollmentRepository {
         }
     }
 
-     async fn completed_courses(&self, student_id: &UserId) -> Vec<CourseId> {
+    async fn completed_courses(&self, student_id: &UserId) -> Vec<CourseId> {
         use enrollment_entity::Entity as Enrollment;
 
         let results = Enrollment::find()
