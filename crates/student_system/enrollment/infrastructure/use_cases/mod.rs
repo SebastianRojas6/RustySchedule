@@ -6,3 +6,4 @@ pub mod save;
 pub mod total_credits_enrolled;
 pub mod repository;
 pub mod find_by_id;
+pub mod current_enrollments;

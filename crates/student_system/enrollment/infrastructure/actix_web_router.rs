@@ -22,6 +22,6 @@ pub fn configure_enrollment_routes(cfg: &mut ServiceConfig) {
             .route("/student/{student_id}/completed", web::get().to(completed_list_of_courses_handler))
             .route("/student/{student_id}/credits", web::get().to(total_credits_enrolled_handler))
             .route("/{id}/complete", web::post().to(complete_course_handler))
-            .route("/student/{student_id}/course/{course_id}/enroll", web::post().to(enroll_in_course_handler))
+            .route("/student/{student_id}/course/enroll", web::post().to(enroll_in_course_handler))
     );
 }
