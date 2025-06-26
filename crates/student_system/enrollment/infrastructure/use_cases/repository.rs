@@ -19,11 +19,9 @@ impl EnrollmentRepository for SupabaseEnrollmentRepository {
 
     async fn save(&self, enrollment: &Enrollment) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {save::save(&self.db, enrollment).await}
 
-    async fn delete(&self, id: &EnrollmentId) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {delete::delete(&self.db, id).await}
-
-    async fn completed_courses(&self, student_id: &UserId) -> Vec<CourseId> {completed_courses::completed_courses(&self.db, student_id).await}
-
-    async fn current_enrollments(&self, student_id: &UserId) -> Vec<Enrollment> {current_enrollments::current_enrollments(&self.db, student_id).await}
+    async fn completed_courses(&self, student_id: &UserId) -> Result<Vec<CourseId>, String> {completed_courses::completed_courses(&self.db, student_id).await}
+    
+    async fn current_enrollments(&self, student_id: &UserId) -> Result<Vec<Enrollment>, String> {current_enrollments::current_enrollments(&self.db, student_id).await}
 
     async fn find_by_student_and_course(&self, student_id: &UserId, course_id: &CourseId) -> Option<Enrollment> {find_by_student_and_course::find_by_student_and_course(&self.db, student_id, course_id).await}
 

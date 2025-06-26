@@ -1,12 +1,16 @@
 use actix_web::{web, HttpResponse};
 use crate::enrollment::domain::*;
-use crate::enrollment::infrastructure::use_cases::repository;
+use crate::bootstrap::AppState;
 
 pub async fn completed_list_of_courses_handler(
-    repo: web::Data<repository::SupabaseEnrollmentRepository>,
+    state: web::Data<AppState>,
     student_id: web::Path<String>,
 ) -> HttpResponse {
     let student_id = UserId::new(student_id.into_inner());
-    let courses = repo.completed_courses(&student_id).await;
-    HttpResponse::Ok().json(courses)
+    let repo = &state.enrollment_repo;
+
+    match repo.completed_courses(&student_id).await {
+        Ok(courses) => HttpResponse::Ok().json(courses),
+        Err(err) => HttpResponse::InternalServerError().body(format!("Error: {}", err)),
+    }
 }

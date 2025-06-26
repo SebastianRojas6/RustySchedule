@@ -1,11 +1,9 @@
 use async_trait::async_trait;
 use crate::enrollment::domain::{EnrollmentId, EnrollmentStatus};
-use super::crud_enrollment::CrudEnrollment;
+use crate::crud_enrollment::domain::enrollment_dto::EnrolledCourseDto;
 
 #[async_trait]
 pub trait CrudEnrollmentRepository: Send + Sync {
-    
-    async fn find_all_by_student(&self, student_id: &str) -> Vec<CrudEnrollment>;
-    async fn find_enrollment_id(&self, student_id: &str, course_id: &str) -> Option<EnrollmentId>;
-    async fn update_status(&self, id: &EnrollmentId, new_status: EnrollmentStatus,) -> Result<(), String>;
+    async fn get_schedule(&self, student_id: &str) -> Result<Vec<EnrolledCourseDto>, sea_orm::DbErr>;
+    async fn update_status(&self, id: &EnrollmentId, new_status: EnrollmentStatus) -> Result<(), String>;
 }

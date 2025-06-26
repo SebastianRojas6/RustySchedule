@@ -6,7 +6,7 @@ use crate::enrollment::infrastructure::entity::sea_orm_active_enums::EnrollmentS
 pub async fn completed_courses(
     db: &DatabaseConnection,
     student_id: &UserId,
-) -> Vec<CourseId> {
+) -> Result<Vec<CourseId>, String> {
     let rows = enrollments::Entity::find()
         .filter(
             enrollments::Column::StudentId
@@ -15,9 +15,9 @@ pub async fn completed_courses(
         )
         .all(db)
         .await
-        .unwrap_or_default();
+        .map_err(|e| format!("Database error: {}", e))?;
 
-    rows.into_iter()
+    Ok(rows.into_iter()
         .map(|r| CourseId::new(r.course_id))
-        .collect()
+        .collect())
 }

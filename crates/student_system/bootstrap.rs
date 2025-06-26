@@ -1,9 +1,18 @@
 use std::sync::Arc;
-
-use shared::config::connect_to_supabase;
 use crate::enrollment::infrastructure::use_cases::repository::SupabaseEnrollmentRepository;
+use crate::crud_enrollment::infrastructure::use_cases::repository::SupabaseCrudEnrollmentRepository;
+use shared::config::connect_to_supabase;
 
-pub async fn init_enrollment_repo() -> Result<Arc<SupabaseEnrollmentRepository>, Box<dyn std::error::Error + Send + Sync>> {
+pub struct AppState {
+    pub crud_repo: Arc<SupabaseCrudEnrollmentRepository>,
+    pub enrollment_repo: Arc<SupabaseEnrollmentRepository>,
+}
+
+pub async fn init_state() -> Result<AppState, Box<dyn std::error::Error + Send + Sync>> {
     let db = connect_to_supabase().await?;
-    Ok(Arc::new(SupabaseEnrollmentRepository { db }))
+
+    Ok(AppState {
+        crud_repo: Arc::new(SupabaseCrudEnrollmentRepository::new(db.clone())),
+        enrollment_repo: Arc::new(SupabaseEnrollmentRepository { db }),
+    })
 }

@@ -6,7 +6,7 @@ use crate::enrollment::infrastructure::entity::sea_orm_active_enums::EnrollmentS
 pub async fn current_enrollments(
     db: &DatabaseConnection,
     student_id: &UserId,
-) -> Vec<Enrollment> {
+) -> Result<Vec<Enrollment>, String> {
     let rows = enrollments::Entity::find()
         .filter(
             enrollments::Column::StudentId.eq(student_id.value())
@@ -16,13 +16,17 @@ pub async fn current_enrollments(
         .await;
 
     match rows {
-        Ok(models) => models
-            .into_iter()
-            .filter_map(|model| model.try_into().ok())
-            .collect(),
+        Ok(models) => {
+            let enrollments = models
+                .into_iter()
+                .filter_map(|model| model.try_into().ok()) // puedes mejorar esto después
+                .collect();
+            Ok(enrollments)
+        }
         Err(err) => {
             eprintln!("[ERROR] current_enrollments: {}", err);
-            vec![]
+            Err("Failed to fetch enrollments".into())
         }
     }
 }
+

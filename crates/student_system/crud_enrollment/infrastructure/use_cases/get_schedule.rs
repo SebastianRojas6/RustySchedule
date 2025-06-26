@@ -1,45 +1,23 @@
-/* 
+use sea_orm::{EntityTrait, ColumnTrait, QueryFilter, JoinType, QuerySelect, DbConn,RelationTrait};
+use crate::enrollment::infrastructure::entity::{enrollments, courses};
+use crate::crud_enrollment::domain::enrollment_dto::EnrolledCourseDto;
 
-use sea_orm::{ColumnTrait, EntityTrait, JoinType, QueryFilter, QuerySelect, RelationTrait};
-// use crate;
-use crate::enrollment::infrastructure::entity::{enrollments, courses, course_schedules};
-use sea_orm::DatabaseConnection;
-
-pub async fn get_schedule(
-    db: &DatabaseConnection,
-    student_id: &str,
-) -> StudentSchedule {
-    let tuples = enrollments::Entity::find()
-        .filter(enrollments::Column::StudentId.eq(student_id.to_string()))
+pub async fn get_schedule(conn: &DbConn, student_id: &str) -> Result<Vec<EnrolledCourseDto>, sea_orm::DbErr> {
+    let results = enrollments::Entity::find()
+        .filter(enrollments::Column::StudentId.eq(student_id))
         .join(JoinType::InnerJoin, enrollments::Relation::Courses.def())
-        .join(JoinType::InnerJoin, courses::Relation::CourseSchedules.def())
-        .select_only()
-        .column(courses::Column::Id)
-        .column(courses::Column::Name)
-        .column(course_schedules::Column::Day)
-        .column(course_schedules::Column::StartTime)
-        .column(course_schedules::Column::EndTime)
-        .into_tuple::<(String, String, String, String, String)>()
-        .all(db)
-        .await
-        .unwrap_or_default();
+        .select_also(courses::Entity)
+        .all(conn)
+        .await?;
 
-    let entries = tuples
-        .into_iter()
-        .map(|(course_id, course_name, day, start_time, end_time)| ScheduleEntry {
-            course_id,
-            course_name,
-            day,
-            start_time,
-            end_time,
+    let dto_list = results.into_iter().filter_map(|(enrollment, course)| {
+        course.map(|c| EnrolledCourseDto {
+            course_id: enrollment.course_id,
+            name: c.name,
+            status: enrollment.status.to_string(), 
+            credits: c.credits,
         })
-        .collect();
+    }).collect();
 
-    StudentSchedule {
-        student_id: student_id.to_string(),
-        entries,
-    }
+    Ok(dto_list)
 }
-
-
-*/
