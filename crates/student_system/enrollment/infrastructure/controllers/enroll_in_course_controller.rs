@@ -30,7 +30,6 @@ pub async fn enroll_in_course_handler(
             EnrollmentId::generate(),
             UserId::new(dto.student_id),
             CourseId::new(dto.course_id),
-            CurriculumId::new(dto.student_curriculum),
             CurriculumId::new(dto.course_curriculum),
             student_status,
             CreditAmount::new(dto.student_credits_enrolled as u8),

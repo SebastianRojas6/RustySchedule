@@ -161,3 +161,33 @@ Asegúrat de tener las credenciales de supabase
 - `404 Not Found`: Recurso no encontrado
 - `500 Internal Server Error`: Error interno del servidor
 
+
+/enrollments/student/available-courses?semester=2025-1
+
+Lista todos los cursos por semestre
+
+[
+  {
+    "id": "COURSE007",
+    "code": "INO102",
+    "name": "MÉTODOS DE ESTUDIO UNIVERSITARIO",
+    "credits": 2,
+    "cycle": 1,
+    "teacher_id": "42229911",
+    "section": 1,
+    "curriculum": "obligatory"
+  },
+  {
+    "id": "COURSE008",
+    "code": "INO103",
+    "name": "DESARROLLO PERSONAL Y LIDERAZGO",
+    "credits": 2,
+    "cycle": 1,
+    "teacher_id": "41388541",
+    "section": 6,
+    "curriculum": "obligatory"
+  },
+ 
+ ... etc
+
+]

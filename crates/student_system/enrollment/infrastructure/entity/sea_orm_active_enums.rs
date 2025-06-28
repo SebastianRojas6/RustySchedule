@@ -13,6 +13,18 @@ pub enum CurriculumType {
     #[sea_orm(string_value = "prerequisite")]
     Prerequisite,
 }
+
+impl fmt::Display for CurriculumType {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let curriculum_str = match self {
+            CurriculumType::Obligatory => "obligatory",
+            CurriculumType::Elective => "elective",
+            CurriculumType::Prerequisite => "prerequisite",
+        };
+        write!(f, "{}", curriculum_str)
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum)]
 #[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "day_type")]
 pub enum DayType {

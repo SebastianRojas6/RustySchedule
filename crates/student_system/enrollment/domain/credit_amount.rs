@@ -7,6 +7,7 @@ pub struct CreditAmount(pub u8);
 impl CreditAmount {
     pub const MAX_CREDITS_REGULAR: u8 = 26;
     pub const MAX_CREDITS_OBSERVED: u8 = 14;
+    pub const MAX_CREDITS_GRADUATED: u8 = 226;
     pub const MIN_CREDITS: u8 = 1;
 
     pub fn new(value: u8) -> Self {

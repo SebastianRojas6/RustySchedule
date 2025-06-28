@@ -4,7 +4,6 @@ use super::CourseId;
 use super::enrollment_status::EnrollmentStatus;
 
 use super::CreditAmount;
-use super::CurriculumId;
 use super::StudentStatus;
 use super::CourseCycle;
 use super::SemesterParity;
@@ -26,8 +25,6 @@ impl Enrollment {
         id: EnrollmentId,
         student_id: UserId,
         course_id: CourseId,
-        student_curriculum: CurriculumId,
-        course_curriculum: CurriculumId,
         student_status: StudentStatus,
         student_credits_enrolled: CreditAmount,
         course_credits: CreditAmount,
@@ -43,10 +40,6 @@ impl Enrollment {
     ) -> Result<Self, EnrollmentError> {
         if already_enrolled {
             return Err(EnrollmentError::AlreadyEnrolled);
-        }
-
-        if student_curriculum != course_curriculum {
-            return Err(EnrollmentError::CurriculumMismatch);
         }
 
         if course_already_passed {

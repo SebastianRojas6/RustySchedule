@@ -14,6 +14,10 @@ use crate::crud_enrollment::infrastructure::controllers::{
     withdraw_enrollment_handler,
 };
 
+use crate::availability::infrastructure::controllers::{
+    get_available_courses_handler,
+    validate_enrollment_handler,
+};
 
 pub fn configure_enrollment_routes(cfg: &mut ServiceConfig) {
     cfg.service(
@@ -29,5 +33,8 @@ pub fn configure_enrollment_routes(cfg: &mut ServiceConfig) {
             
             .route("/student/{student_id}/enrollments", web::get().to(get_schedule_handler))
             .route("/{id}/withdraw", web::post().to(withdraw_enrollment_handler))
+
+            .route("/student/available-courses", web::get().to(get_available_courses_handler))
+            .route("/student/validate", web::post().to(validate_enrollment_handler))
     );
 }

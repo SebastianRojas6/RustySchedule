@@ -24,7 +24,6 @@ pub struct Model {
     pub contract_type: Option<TeacherContract>,
     pub max_hours_per_week: Option<i32>,
     pub hire_date: Option<Date>,
-    pub active: Option<bool>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]

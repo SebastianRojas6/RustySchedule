@@ -5,6 +5,7 @@ use std::convert::TryFrom;
 pub enum StudentStatus {
     Regular,
     Observed,
+    Graduated,
 }
 
 impl StudentStatus {
@@ -20,6 +21,7 @@ impl StudentStatus {
         match self {
             StudentStatus::Regular => CreditAmount::MAX_CREDITS_REGULAR,
             StudentStatus::Observed => CreditAmount::MAX_CREDITS_OBSERVED,
+            StudentStatus::Graduated => CreditAmount::MAX_CREDITS_GRADUATED,
         }
     }
 }
@@ -31,6 +33,7 @@ impl TryFrom<&str> for StudentStatus {
         match value.to_lowercase().as_str() {
             "regular" => Ok(StudentStatus::Regular),
             "observed" => Ok(StudentStatus::Observed),
+            "graduated" => Ok(StudentStatus::Graduated),
             _ => Err(()),
         }
     }
