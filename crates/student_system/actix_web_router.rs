@@ -6,7 +6,8 @@ use crate::enrollment::infrastructure::controllers::{
     completed_list_of_courses_handler,
     total_credits_enrolled_handler,
     complete_course_handler,
-    enroll_in_course_handler
+    enroll_in_course_handler,
+    get_user_info_handler,
 };
 
 use crate::crud_enrollment::infrastructure::controllers::{
@@ -30,7 +31,8 @@ pub fn configure_enrollment_routes(cfg: &mut ServiceConfig) {
             .route("/student/{student_id}/credits", web::get().to(total_credits_enrolled_handler))
             .route("/{id}/complete", web::post().to(complete_course_handler))
             .route("/student/course/enroll", web::post().to(enroll_in_course_handler))
-            
+            .route("/student/{student_id}/info", web::get().to(get_user_info_handler))
+
             .route("/student/{student_id}/enrollments", web::get().to(get_schedule_handler))
             .route("/{id}/withdraw", web::post().to(withdraw_enrollment_handler))
 

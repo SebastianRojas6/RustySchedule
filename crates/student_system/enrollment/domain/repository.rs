@@ -16,4 +16,11 @@ pub trait EnrollmentRepository: Send + Sync {
     async fn enrollment_attempts(&self, student_id: &UserId, course_id: &CourseId) -> u8;
 
     async fn current_enrollments(&self, student_id: &UserId) -> Result<Vec<Enrollment>, String> ;
+
+    async fn find_user_info_by_id(&self, user_id: &UserId) -> Option<(String, Option<String>, String, String)>;
+    
+    async fn find_any_enrolled_semester(&self, user_id: &UserId) -> Option<String>;
+    
+    async fn count_enrolled_courses(&self, user_id: &UserId) -> usize;
+
 }

@@ -10,6 +10,7 @@ pub mod student_status;
 pub mod course_cycle;
 pub mod semester_parity;
 pub mod error;
+pub mod user_info;
 
 pub use course_id::CourseId;
 pub use enrollment::Enrollment;

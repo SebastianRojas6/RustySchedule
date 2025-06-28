@@ -111,6 +111,23 @@ Asegúrat de tener las credenciales de supabase
 ]
 ```
 
+#### 👤 Obtener información del estudiante
+
+- **Endpoint:** `GET /enrollments/student/{student_id}/info`  
+- **Descripción:** Retorna información general del estudiante, incluyendo su código, correo, especialidad, cantidad de cursos matriculados y créditos totales en el semestre actual.
+
+```json
+{
+  "code": "22200002",
+  "email": "a02@unmsm.edu.pe",
+  "specialty": "Ingeniería de software",
+  "full_name": "",
+  "semester": "2025-1",
+  "cursos_matriculados": 5,
+  "creditos_totales": 12
+}
+```
+
 ### ✏️ Métodos POST
 
 #### ✅ Completar curso

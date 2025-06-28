@@ -7,6 +7,7 @@ pub mod complete_courses_controller;
 pub mod enrollment_attempts_controller;
 pub mod enroll_in_course_dto;
 pub mod enroll_in_course_controller;
+pub mod user_info_controller;
 
 pub use find_by_id_controller::find_by_id_handler;
 pub use find_by_student_and_course_controller::find_by_student_and_course_handler;
@@ -17,3 +18,4 @@ pub use complete_courses_controller::complete_course_handler;
 pub use enroll_in_course_controller::enroll_in_course_handler;
 pub use enroll_in_course_dto::EnrollInCourseRequestDto;
 pub use enrollment_attempts_controller::enrollment_attempts_handler;
+pub use user_info_controller::get_user_info_handler;
