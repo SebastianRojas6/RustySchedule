@@ -1,6 +1,4 @@
-use sea_orm::{
-    RelationTrait, PaginatorTrait, EntityTrait, ColumnTrait, QueryFilter, QuerySelect, EnumIter, DeriveColumn, JoinType
-};
+use sea_orm::{ RelationTrait, PaginatorTrait, EntityTrait, ColumnTrait, QueryFilter, QuerySelect, EnumIter, DeriveColumn, JoinType };
 
 use crate::enrollment::infrastructure::entity::{users, courses, enrollments, course_prerequisites};
 use crate::enrollment::domain::*;

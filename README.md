@@ -161,11 +161,14 @@ Asegúrat de tener las credenciales de supabase
 - `404 Not Found`: Recurso no encontrado
 - `500 Internal Server Error`: Error interno del servidor
 
+#### 📌 Cursos disponibles por semestre
 
-/enrollments/student/available-courses?semester=2025-1
+- **Endpoint:** `GET /enrollments/student/available-courses?semester=2025-1`  
+- **Descripción:** Lista todos los cursos disponibles para un semestre específico.
 
-Lista todos los cursos por semestre
+#### 📋 Ejemplo de respuesta
 
+```json
 [
   {
     "id": "COURSE007",
@@ -186,8 +189,36 @@ Lista todos los cursos por semestre
     "teacher_id": "41388541",
     "section": 6,
     "curriculum": "obligatory"
-  },
- 
- ... etc
-
+  }
+  // ... etc
 ]
+```
+
+#### 🧪 Validar matrícula por curso
+
+- **Endpoint:** `POST /enrollments/student/validate`  
+- **Descripción:** Valida si un estudiante puede matricularse en un curso específico. Ideal para usar antes de ejecutar la matrícula.
+
+### 📤 Ejemplo de JSON de entrada
+
+```json
+{
+  "student_id": "2",
+  "course_id": "COURSE011",
+  "section_id": "1"
+}
+
+```
+
+### ✅ Posibles respuestas
+
+| Código HTTP           | Mensaje                                     | Descripción                                                  |
+|-----------------------|---------------------------------------------|--------------------------------------------------------------|
+| `200 OK`              | `Valid enrollment`                          | El estudiante puede matricularse sin restricciones.          |
+| `400 Bad Request`     | `Validation failed: Course not found`       | El curso especificado no existe.                             |
+| `400 Bad Request`     | `Validation failed: Already enrolled`       | El estudiante ya está matriculado en el curso.               |
+| `400 Bad Request`     | `Validation failed: Prerequisites not met`  | No se han cumplido los prerrequisitos del curso.             |
+| `400 Bad Request`     | `Validation failed: Schedule conflict`      | Hay conflicto de horario con otro curso matriculado.         |
+| `400 Bad Request`     | `Validation failed: Section full`           | La sección no tiene cupos disponibles.                       |
+| `400 Bad Request`     | `Validation failed: Already passed course`  | El estudiante ya aprobó este curso previamente.              |
+| `500 Internal Server Error` | `Internal server error`              | Error inesperado del sistema.                                |
