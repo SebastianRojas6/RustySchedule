@@ -164,13 +164,13 @@ Asegúrat de tener las credenciales de supabase
 - **Endpoint:** `POST /enrollments/{id_enrollment}/withdraw`
 - **Descripción:** Retira a un estudiante de un curso específico
 
-### 📋 Estados de Matrícula
+**Estados de Matrícula**
 
 - `Enrolled`: Estudiante matriculado activamente
 - `Completed`: Curso completado exitosamente
 - `Withdrawn`: Estudiante retirado del curso
 
-### 🔧 Códigos de Respuesta
+**Códigos de Respuesta**
 
 - `200 OK`: Solicitud exitosa
 - `201 Created`: Recurso creado exitosamente
@@ -216,7 +216,7 @@ Asegúrat de tener las credenciales de supabase
 - **Endpoint:** `POST /enrollments/student/validate`  
 - **Descripción:** Valida si un estudiante puede matricularse en un curso específico. Ideal para usar antes de ejecutar la matrícula.
 
-### 📤 Ejemplo de JSON de entrada
+**Ejemplo de JSON para matrícula:**
 
 ```json
 {
