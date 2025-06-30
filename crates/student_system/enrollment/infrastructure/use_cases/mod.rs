@@ -9,3 +9,4 @@ pub mod save;
 pub mod count_enrolled_courses;
 pub mod find_any_enrolled_semester;
 pub mod find_user_info_by_id;
+pub mod find_user_info_by_code;

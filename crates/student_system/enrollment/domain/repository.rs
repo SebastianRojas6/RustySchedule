@@ -1,5 +1,5 @@
 use async_trait::async_trait;
-use super::super::domain::{Enrollment, EnrollmentId, UserId, CourseId, CreditAmount};
+use super::super::domain::{Enrollment, EnrollmentId, UserId, CourseId, CreditAmount, UserCode};
 
 #[async_trait]
 pub trait EnrollmentRepository: Send + Sync {
@@ -22,5 +22,7 @@ pub trait EnrollmentRepository: Send + Sync {
     async fn find_any_enrolled_semester(&self, user_id: &UserId) -> Option<String>;
     
     async fn count_enrolled_courses(&self, user_id: &UserId) -> usize;
+
+    async fn find_user_info_by_code(&self, user_code: &UserCode) -> Option<(String, Option<String>, String, String)>;
 
 }

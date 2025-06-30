@@ -35,4 +35,6 @@ impl EnrollmentRepository for SupabaseEnrollmentRepository {
 
     async fn count_enrolled_courses(&self, user_id: &UserId) -> usize {count_enrolled_courses::count_enrolled_courses(&self.db, user_id).await}
 
+    async fn find_user_info_by_code(&self, user_code: &UserCode) -> Option<(String, Option<String>, String, String)> {find_user_info_by_code::find_user_info_by_code(&self.db, user_code).await}
+
 }
