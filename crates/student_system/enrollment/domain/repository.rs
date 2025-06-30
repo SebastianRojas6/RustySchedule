@@ -1,4 +1,6 @@
 use async_trait::async_trait;
+use crate::enrollment::infrastructure::entity::sea_orm_active_enums::UserRole;
+
 use super::super::domain::{Enrollment, EnrollmentId, UserId, CourseId, CreditAmount, UserCode};
 
 #[async_trait]
@@ -23,6 +25,6 @@ pub trait EnrollmentRepository: Send + Sync {
     
     async fn count_enrolled_courses(&self, user_id: &UserId) -> usize;
 
-    async fn find_user_info_by_code(&self, user_code: &UserCode) -> Option<(String, Option<String>, String, String)>;
+    async fn find_user_info_by_code(&self, user_code: &UserCode) -> Option<(String, Option<String>, String, String, UserRole)>;
 
 }

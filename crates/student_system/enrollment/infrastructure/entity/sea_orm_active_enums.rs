@@ -110,6 +110,7 @@ pub enum TeacherContract {
 }
 #[derive(Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum)]
 #[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "user_role")]
+#[derive(serde::Serialize)]
 pub enum UserRole {
     #[sea_orm(string_value = "student")]
     Student,
