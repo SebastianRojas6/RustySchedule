@@ -1,4 +1,5 @@
 use actix_web::{App, HttpServer, web};
+use actix_cors::Cors;
 use student_system::bootstrap::init_state;
 use student_system::actix_web_router::configure_enrollment_routes;
 use dotenv::dotenv;
@@ -16,6 +17,7 @@ async fn main() -> std::io::Result<()> {
 
     HttpServer::new(move || {
         App::new()
+            .wrap(Cors::permissive())
             .app_data(shared_data.clone())
             .configure(configure_enrollment_routes)
     })
