@@ -1,19 +1,5 @@
+use crate::domain::models::enums::{ContractType, StudentStatus};
 use serde::{Deserialize, Serialize};
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub enum StudentStatus {
-    Regular,
-    Irregular,
-    Graduated,
-    Suspended,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub enum ContractType {
-    FullTime,
-    PartTime,
-    Contratado,
-}
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct User {
@@ -24,12 +10,13 @@ pub struct User {
     pub faculty: String,
     pub program: String,
     pub specialty: String,
+    pub role: String,
     pub student_status: Option<StudentStatus>,
     pub admission_date: Option<String>,
     pub contract_type: Option<ContractType>,
     pub max_hours_per_week: Option<i32>,
     pub hire_date: Option<String>,
-    pub active: bool,
+    pub full_name: String,
 }
 
 impl User {

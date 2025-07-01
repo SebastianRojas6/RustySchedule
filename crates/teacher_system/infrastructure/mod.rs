@@ -1,2 +1,2 @@
-pub mod auth;
-pub mod supabase;
+pub mod api_restful;
+pub mod database;
