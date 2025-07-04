@@ -10,6 +10,7 @@ teacher_system = { path = "../teacher_system" }
 tokio = { version = "1.45.1", features = ["full"] }
 actix-web = "4"
 dotenv = "0.15.0"
+actix-cors = "0.7.1"
 
 [[bin]]
 name = "Schedule"

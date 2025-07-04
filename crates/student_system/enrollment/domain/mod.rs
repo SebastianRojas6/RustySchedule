@@ -11,6 +11,7 @@ pub mod course_cycle;
 pub mod semester_parity;
 pub mod error;
 pub mod user_info;
+pub mod user_code;
 
 pub use course_id::CourseId;
 pub use enrollment::Enrollment;
@@ -24,3 +25,4 @@ pub use student_status::StudentStatus;
 pub use course_cycle::CourseCycle;
 pub use semester_parity::SemesterParity;
 pub use error::EnrollmentError;
+pub use user_code::UserCode;

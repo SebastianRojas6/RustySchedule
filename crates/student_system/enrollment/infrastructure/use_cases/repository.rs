@@ -1,4 +1,4 @@
-use crate::enrollment::domain::*;
+use crate::enrollment::{domain::*, infrastructure::entity::sea_orm_active_enums::UserRole};
 use super::super::use_cases::*;
 
 pub struct SupabaseEnrollmentRepository {
@@ -34,5 +34,7 @@ impl EnrollmentRepository for SupabaseEnrollmentRepository {
     async fn find_any_enrolled_semester(&self, user_id: &UserId) -> Option<String> { find_any_enrolled_semester::find_any_enrolled_semester(&self.db, user_id).await}
 
     async fn count_enrolled_courses(&self, user_id: &UserId) -> usize {count_enrolled_courses::count_enrolled_courses(&self.db, user_id).await}
+
+    async fn find_user_info_by_code(&self, user_code: &UserCode) -> Option<(String, Option<String>, String, String, UserRole)> {find_user_info_by_code::find_user_info_by_code(&self.db, user_code).await}
 
 }
