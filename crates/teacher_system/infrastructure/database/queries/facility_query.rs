@@ -6,6 +6,7 @@ use chrono::NaiveTime;
 use chrono::Utc;
 use sea_orm::{ActiveModelTrait, ColumnTrait, DatabaseConnection, EntityTrait, JoinType, QueryFilter, QuerySelect, RelationTrait, Set};
 use shared::config::connect_to_supabase;
+use std::collections::BTreeMap;
 #[derive(Clone)]
 pub struct SupabaseFacilityRepository {
     db: DatabaseConnection,
@@ -171,128 +172,79 @@ impl FacilityRepository for SupabaseFacilityRepository {
     }
 
     async fn get_facility_available(&self) -> Result<Vec<FacilityAvailable>, String> {
-        // Get all facilities
-        let facilities = facilities::Entity::find().all(&self.db).await.map_err(|e| format!("Failed to fetch facilities: {}", e))?;
+        let facilities = self.get_all_facilities().await?;
 
-        // Get all scheduled courses for facilities
-        let schedules = course_schedules::Entity::find()
+        let occupied_schedules = course_schedules::Entity::find()
             .all(&self.db)
             .await
-            .map_err(|e| format!("Failed to fetch course schedules: {}", e))?;
+            .map_err(|e| e.to_string())?
+            .into_iter()
+            .fold(BTreeMap::new(), |mut acc, schedule| {
+                acc.entry(schedule.facility_id.clone()).or_insert_with(Vec::new).push(schedule);
+                acc
+            });
 
-        // Group schedules by facility_id and day
-        let mut facility_schedules: std::collections::HashMap<String, Vec<course_schedules::Model>> = std::collections::HashMap::new();
+        let workday_start = NaiveTime::from_hms_opt(8, 0, 0).unwrap();
+        let workday_end = NaiveTime::from_hms_opt(22, 0, 0).unwrap();
+        let days = vec![Weekday::Monday, Weekday::Tuesday, Weekday::Wednesday, Weekday::Thursday, Weekday::Friday, Weekday::Saturday];
 
-        for schedule in schedules {
-            facility_schedules.entry(schedule.facility_id.clone()).or_default().push(schedule);
-        }
-
-        // Convert to FacilityAvailable models
         let mut result = Vec::new();
 
         for facility in facilities {
             let facility_id = facility.id.clone();
-            let schedules = facility_schedules.get(&facility_id).cloned().unwrap_or_default();
+            let occupied = occupied_schedules.get(&facility_id).cloned().unwrap_or_default();
 
-            // Process each day separately
-            let days = [
-                DayType::Monday,
-                DayType::Tuesday,
-                DayType::Wednesday,
-                DayType::Thursday,
-                DayType::Friday,
-                DayType::Saturday,
-                DayType::Sunday,
-            ];
+            let mut occupied_by_day: BTreeMap<Weekday, Vec<(NaiveTime, NaiveTime)>> = BTreeMap::new();
 
-            for day in days.clone() {
-                // Filter schedules for this day
-                let day_schedules: Vec<_> = schedules.iter().filter(|s| s.day == day).map(|s| (s.start_time, s.end_time)).collect();
+            for schedule in occupied {
+                let day = match schedule.day {
+                    DayType::Monday => Weekday::Monday,
+                    DayType::Tuesday => Weekday::Tuesday,
+                    DayType::Wednesday => Weekday::Wednesday,
+                    DayType::Thursday => Weekday::Thursday,
+                    DayType::Friday => Weekday::Friday,
+                    DayType::Saturday => Weekday::Saturday,
+                    DayType::Sunday => Weekday::Sunday,
+                };
 
-                // Sort time ranges by start time
-                let mut sorted_ranges = day_schedules.clone();
-                sorted_ranges.sort_by(|a, b| a.0.cmp(&b.0));
+                occupied_by_day.entry(day).or_default().push((schedule.start_time, schedule.end_time));
+            }
 
-                // Calculate available slots between scheduled times
-                let mut available_start = NaiveTime::from_hms_opt(0, 0, 0).unwrap();
+            let mut available_slots = BTreeMap::new();
 
-                for (start, end) in sorted_ranges {
-                    if available_start < start {
-                        result.push(FacilityAvailable {
-                            facility: Facility {
-                                id: facility.id.clone(),
-                                name: facility.name.clone(),
-                                capacity: facility.capacity.unwrap_or_default(),
-                                facility_type: facility.facility_type.clone().unwrap_or_default(),
-                                created_at: Some(Utc::now().naive_utc().to_string()),
-                            },
-                            weekday: match day {
-                                DayType::Monday => Weekday::Monday,
-                                DayType::Tuesday => Weekday::Tuesday,
-                                DayType::Wednesday => Weekday::Wednesday,
-                                DayType::Thursday => Weekday::Thursday,
-                                DayType::Friday => Weekday::Friday,
-                                DayType::Saturday => Weekday::Saturday,
-                                DayType::Sunday => Weekday::Sunday,
-                            },
-                            start_time: available_start,
-                            end_time: start,
-                        });
+            for &day in &days {
+                let mut day_slots = Vec::new();
+                let mut current_time = workday_start;
+
+                let mut day_occupied = occupied_by_day.get(&day).cloned().unwrap_or_default();
+                day_occupied.sort_by(|a, b| a.0.cmp(&b.0));
+
+                for (start, end) in day_occupied {
+                    if start > current_time {
+                        day_slots.push((current_time, start));
                     }
-                    available_start = end;
+                    current_time = current_time.max(end);
                 }
 
-                // Add remaining time after last schedule
-                let day_end = NaiveTime::from_hms_opt(23, 59, 59).unwrap();
-                if available_start < day_end {
-                    result.push(FacilityAvailable {
-                        facility: Facility {
-                            id: facility.id.clone(),
-                            name: facility.name.clone(),
-                            capacity: facility.capacity.unwrap_or_default(),
-                            facility_type: facility.facility_type.clone().unwrap_or_default(),
-                            created_at: Some(Utc::now().naive_utc().to_string()),
-                        },
-                        weekday: match day {
-                            DayType::Monday => Weekday::Monday,
-                            DayType::Tuesday => Weekday::Tuesday,
-                            DayType::Wednesday => Weekday::Wednesday,
-                            DayType::Thursday => Weekday::Thursday,
-                            DayType::Friday => Weekday::Friday,
-                            DayType::Saturday => Weekday::Saturday,
-                            DayType::Sunday => Weekday::Sunday,
-                        },
-                        start_time: available_start,
-                        end_time: day_end,
-                    });
+                if current_time < workday_end {
+                    day_slots.push((current_time, workday_end));
+                }
+
+                if !day_slots.is_empty() {
+                    available_slots.insert(day, day_slots);
                 }
             }
 
-            // If no schedules exist, the facility is available all day every day
-            if schedules.is_empty() {
-                for day in &days {
-                    result.push(FacilityAvailable {
-                        facility: Facility {
-                            id: facility.id.clone(),
-                            name: facility.name.clone(),
-                            capacity: facility.capacity.unwrap_or_default(),
-                            facility_type: facility.facility_type.clone().unwrap_or_default(),
-                            created_at: Some(Utc::now().naive_utc().to_string()),
-                        },
-                        weekday: match day {
-                            DayType::Monday => Weekday::Monday,
-                            DayType::Tuesday => Weekday::Tuesday,
-                            DayType::Wednesday => Weekday::Wednesday,
-                            DayType::Thursday => Weekday::Thursday,
-                            DayType::Friday => Weekday::Friday,
-                            DayType::Saturday => Weekday::Saturday,
-                            DayType::Sunday => Weekday::Sunday,
-                        },
-                        start_time: NaiveTime::from_hms_opt(0, 0, 0).unwrap(),
-                        end_time: NaiveTime::from_hms_opt(23, 59, 59).unwrap(),
-                    });
-                }
-            }
+            result.push(FacilityAvailable {
+                facility: Facility {
+                    id: facility.id,
+                    name: facility.name,
+                    capacity: facility.capacity,
+                    facility_type: facility.facility_type,
+                    created_at: facility.created_at.map(|dt| dt.to_string()),
+                },
+                available_slots,
+            });
         }
 
         Ok(result)

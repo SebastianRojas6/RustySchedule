@@ -1,4 +1,5 @@
 use actix_cors::Cors;
+use actix_web::middleware::Logger;
 use actix_web::{web, App, HttpServer};
 use dotenv::dotenv;
 use student_system::actix_web_router::configure_enrollment_routes;
@@ -22,6 +23,7 @@ async fn main() -> std::io::Result<()> {
     HttpServer::new(move || {
         App::new()
             .wrap(Cors::permissive())
+            .wrap(Logger::default())
             .app_data(shared_data_student.clone())
             .app_data(shared_data_teacher.clone())
             .configure(configure_teacher_routes)

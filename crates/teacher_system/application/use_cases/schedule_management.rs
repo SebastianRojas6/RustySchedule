@@ -9,8 +9,8 @@ use async_trait::async_trait;
 pub trait ScheduleManagementUseCase {
     async fn get_all(&self) -> Result<Vec<Schedule>, String>;
     async fn get_by_id(&self, id: &str) -> Result<Schedule, String>;
-    async fn create(&self, schedule: Schedule) -> Result<(), String>;
-    async fn update(&self, schedule: &Schedule) -> Result<(), String>;
+    async fn create(&self, schedule: Schedule) -> Result<Schedule, String>;
+    async fn update(&self, schedule: &Schedule) -> Result<Schedule, String>;
     async fn delete(&self, id: &str) -> Result<(), String>;
     async fn suggest_available_schedule(&self, teacher_id: &str) -> Result<Vec<Schedule>, String>;
 }
@@ -40,7 +40,7 @@ impl ScheduleManagementUseCase for ScheduleManagementUseCaseImpl {
         self.schedule_repo.get_schedule_by_id(id).await?.ok_or_else(|| "Schedule not found".to_string())
     }
 
-    async fn create(&self, schedule: Schedule) -> Result<(), String> {
+    async fn create(&self, schedule: Schedule) -> Result<Schedule, String> {
         let is_available = self.validation_service.check_facility_availability(&schedule.facility_id, &schedule).await?;
 
         if !is_available {
@@ -50,12 +50,12 @@ impl ScheduleManagementUseCase for ScheduleManagementUseCaseImpl {
         self.schedule_repo.create_schedule(&schedule).await
     }
 
-    async fn update(&self, schedule: &Schedule) -> Result<(), String> {
-        let is_available = self.validation_service.check_facility_availability(&schedule.facility_id, schedule).await?;
+    async fn update(&self, schedule: &Schedule) -> Result<Schedule, String> {
+        // let is_available = self.validation_service.check_facility_availability(&schedule.facility_id, schedule).await?;
 
-        if !is_available {
-            return Err("Facility not available at requested time".to_string());
-        }
+        // if !is_available {
+        //     return Err("Facility not available at requested time".to_string());
+        // }
 
         self.schedule_repo.update_schedule(schedule).await
     }

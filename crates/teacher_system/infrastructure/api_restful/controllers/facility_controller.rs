@@ -57,8 +57,8 @@ pub async fn delete_facility(use_case: web::Data<AppState>, id: web::Path<String
     }
 }
 
-pub async fn get_facility_available(use_case: web::Data<AppState>) -> Result<HttpResponse, Error> {
-    match use_case.facility_use_case.get_facility_available().await {
+pub async fn get_facility_available_controller(use_case: web::Data<AppState>) -> Result<HttpResponse, Error> {
+    match use_case.facility_use_case.get_facility_available_case().await {
         Ok(available_facilities) => Ok(HttpResponse::Ok().json(available_facilities)),
         Err(e) => {
             eprintln!("Error fetching available facilities: {}", e);

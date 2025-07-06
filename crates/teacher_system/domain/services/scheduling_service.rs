@@ -1,10 +1,16 @@
-use crate::domain::{
-    models::enums::{SessionType, Weekday},
-    models::schedule::Schedule,
-    repositories::{course_repository::CourseRepository, schedule_repository::ScheduleRepository},
+use crate::{
+    domain::{
+        models::{
+            enums::{SessionType, Weekday},
+            facilitie_available::FacilityAvailable,
+            schedule::Schedule,
+        },
+        repositories::{course_repository::CourseRepository, facility_repository::FacilityRepository, schedule_repository::ScheduleRepository},
+    },
+    infrastructure::database::queries::facility_query::SupabaseFacilityRepository,
 };
 use chrono::NaiveTime;
-use std::sync::Arc;
+use std::{collections::BTreeMap, sync::Arc};
 
 #[derive(Clone)]
 pub struct DefaultSchedulingService {
@@ -19,7 +25,7 @@ impl DefaultSchedulingService {
 }
 
 impl DefaultSchedulingService {
-    pub async fn suggest_available_time(&self, teacher_id: &str) -> Result<Vec<Schedule>, String> {
+    pub async fn suggest_available_time_2(&self, teacher_id: &str) -> Result<Vec<Schedule>, String> {
         // 1. Obtener todos los cursos del profesor
         let courses = self.course_repo.get_courses_by_user(teacher_id).await?;
 
@@ -124,5 +130,120 @@ impl DefaultSchedulingService {
         }
 
         Ok(true)
+    }
+
+    // Cambiar a esta versión cuando es sin el facility_id
+    pub async fn suggest_available_time(&self, teacher_id: &str) -> Result<Vec<Schedule>, String> {
+        let courses = self.course_repo.get_courses_by_user(teacher_id).await?;
+
+        let mut existing_schedules = Vec::new();
+        for course in &courses {
+            existing_schedules.extend(self.schedule_repo.get_schedules_by_course(&course.id).await?);
+        }
+
+        let facility_repo = Arc::new(SupabaseFacilityRepository::new().await?);
+        let facilities_available = facility_repo.get_facility_available().await?;
+        let mut facilities_by_capacity: BTreeMap<i32, Vec<FacilityAvailable>> = BTreeMap::new();
+        for fa in facilities_available {
+            facilities_by_capacity.entry(fa.facility.capacity).or_default().push(fa);
+        }
+
+        let mut suggested_schedules = Vec::new();
+        let days = [Weekday::Monday, Weekday::Tuesday, Weekday::Wednesday, Weekday::Thursday, Weekday::Friday, Weekday::Saturday];
+
+        for course in courses {
+            let required_hours = course.hours_per_week;
+            let required_capacity = course.capacity;
+
+            let mut facilities_by_capacity_2 = facilities_by_capacity.clone();
+
+            let suitable_facilities: Vec<_> = facilities_by_capacity.range(required_capacity..).flat_map(|(_, facilities)| facilities).collect();
+
+            for facility_available in suitable_facilities {
+                let mut schedule_found = false;
+
+                for &day in &days {
+                    if let Some(available_slots) = facility_available.available_slots.get(&day) {
+                        for &(start, end) in available_slots {
+                            let duration = end - start;
+                            let available_hours = duration.num_hours() as i32;
+
+                            if available_hours >= required_hours {
+                                let new_schedule = Schedule {
+                                    id: format!("suggested-{}", suggested_schedules.len() + 1),
+                                    course_id: course.id.clone(),
+                                    day,
+                                    start_time: start,
+                                    end_time: start + chrono::Duration::hours(required_hours as i64),
+                                    session_type: SessionType::Theory,
+                                    location_detail: None,
+                                    created_at: None,
+                                    facility_id: facility_available.facility.id.clone(),
+                                };
+
+                                let has_conflict = existing_schedules.iter().chain(suggested_schedules.iter()).any(|s| s.conflicts_with(&new_schedule));
+
+                                if !has_conflict && self.validate_schedule(teacher_id, &new_schedule).await? {
+                                    suggested_schedules.push(new_schedule);
+                                    schedule_found = true;
+
+                                    self.update_facility_availability(
+                                        &mut facilities_by_capacity_2,
+                                        &facility_available.facility.id,
+                                        day,
+                                        start,
+                                        start + chrono::Duration::hours(required_hours as i64),
+                                    )
+                                    .await?;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    if schedule_found {
+                        break;
+                    }
+                }
+                if schedule_found {
+                    break;
+                }
+            }
+        }
+
+        Ok(suggested_schedules)
+    }
+
+    async fn update_facility_availability(
+        &self,
+        facilities_by_capacity: &mut BTreeMap<i32, Vec<FacilityAvailable>>,
+        facility_id: &str,
+        day: Weekday,
+        used_start: NaiveTime,
+        used_end: NaiveTime,
+    ) -> Result<(), String> {
+        for facilities in facilities_by_capacity.values_mut() {
+            for fa in facilities {
+                if fa.facility.id == facility_id {
+                    if let Some(slots) = fa.available_slots.get_mut(&day) {
+                        let mut new_slots = Vec::new();
+
+                        for &(start, end) in slots.iter() {
+                            if start < used_start && end > used_end {
+                                new_slots.push((start, used_start));
+                                new_slots.push((used_end, end));
+                            } else if start < used_start && end > used_start {
+                                new_slots.push((start, used_start));
+                            } else if start < used_end && end > used_end {
+                                new_slots.push((used_end, end));
+                            }
+                        }
+
+                        *slots = new_slots;
+                    }
+                }
+            }
+        }
+
+        Ok(())
     }
 }

@@ -4,6 +4,7 @@ use async_trait::async_trait;
 use chrono::Utc;
 use sea_orm::{ActiveModelTrait, ColumnTrait, DatabaseConnection, EntityTrait, JoinType, QueryFilter, QuerySelect, RelationTrait, Set};
 use shared::config::connect_to_supabase;
+use uuid::Uuid;
 
 #[derive(Clone)]
 pub struct SupabaseScheduleRepository {
@@ -19,30 +20,55 @@ impl SupabaseScheduleRepository {
 
 #[async_trait]
 impl ScheduleRepository for SupabaseScheduleRepository {
-    async fn create_schedule(&self, schedule: &Schedule) -> Result<(), String> {
+    async fn create_schedule(&self, schedule: &Schedule) -> Result<Schedule, String> {
+        let schedule_id = if schedule.id.is_empty() { Uuid::new_v4().to_string() } else { schedule.id.clone() };
+
+        let day_db = sea_orm_active_enums::to_db_daytype(&schedule.day);
+        let session_type_db = sea_orm_active_enums::to_db_session(&schedule.session_type);
+
         let schedule_model = course_schedules::ActiveModel {
-            id: Set(schedule.id.clone()),
+            id: Set(schedule_id.clone()),
             course_id: Set(schedule.course_id.clone()),
-            day: Set(sea_orm_active_enums::to_db_daytype(&schedule.day)),
+            day: Set(day_db),
             start_time: Set(schedule.start_time),
             end_time: Set(schedule.end_time),
-            session_type: Set(sea_orm_active_enums::to_db_session(&schedule.session_type)),
+            session_type: Set(session_type_db),
             location_detail: Set(schedule.location_detail.clone()),
             facility_id: Set(schedule.facility_id.clone()),
             created_at: Set(Some(Utc::now().naive_utc())),
+            ..Default::default()
         };
 
-        schedule_model.insert(&self.db).await.map_err(|e| e.to_string())?;
-        Ok(())
+        let result = schedule_model.insert(&self.db).await.map_err(|e| e.to_string())?;
+
+        let created_schedule = Schedule {
+            id: result.id,
+            course_id: result.course_id,
+            day: schedule.day.clone(),
+            start_time: result.start_time,
+            end_time: result.end_time,
+            session_type: schedule.session_type.clone(),
+            location_detail: result.location_detail,
+            created_at: result.created_at.map(|dt| dt.to_string()),
+            facility_id: result.facility_id,
+        };
+
+        Ok(created_schedule)
     }
 
-    async fn update_schedule(&self, schedule: &Schedule) -> Result<(), String> {
-        let mut schedule_model: course_schedules::ActiveModel = course_schedules::Entity::find_by_id(&schedule.id)
-            .one(&self.db)
-            .await
-            .map_err(|e| e.to_string())?
-            .ok_or("Schedule not found")?
-            .into();
+    async fn update_schedule(&self, schedule: &Schedule) -> Result<Schedule, String> {
+        dbg!(&schedule);
+        let mut schedule_model = match course_schedules::Entity::find_by_id(&schedule.id).one(&self.db).await.map_err(|e| e.to_string())? {
+            Some(existing) => existing.into(),
+            None => {
+                let new_id = if schedule.id.is_empty() { Uuid::new_v4().to_string() } else { schedule.id.clone() };
+
+                course_schedules::ActiveModel {
+                    id: Set(new_id),
+                    ..Default::default()
+                }
+            }
+        };
 
         schedule_model.course_id = Set(schedule.course_id.clone());
         schedule_model.day = Set(sea_orm_active_enums::to_db_daytype(&schedule.day));
@@ -52,8 +78,20 @@ impl ScheduleRepository for SupabaseScheduleRepository {
         schedule_model.location_detail = Set(schedule.location_detail.clone());
         schedule_model.facility_id = Set(schedule.facility_id.clone());
 
-        schedule_model.update(&self.db).await.map_err(|e| e.to_string())?;
-        Ok(())
+        let updated_schedule = schedule_model.update(&self.db).await.map_err(|e| e.to_string())?;
+
+        dbg!(&updated_schedule);
+        Ok(Schedule {
+            id: updated_schedule.id,
+            course_id: updated_schedule.course_id,
+            day: schedule.day.clone(),
+            start_time: updated_schedule.start_time,
+            end_time: updated_schedule.end_time,
+            session_type: schedule.session_type.clone(),
+            location_detail: updated_schedule.location_detail,
+            created_at: updated_schedule.created_at.map(|dt| dt.to_string()),
+            facility_id: updated_schedule.facility_id,
+        })
     }
 
     async fn get_schedule_by_id(&self, schedule_id: &str) -> Result<Option<Schedule>, String> {

@@ -41,4 +41,5 @@ fn facility_routes() -> Scope {
         .route("/{id}", web::get().to(facility_controller::get_facility_by_id))
         .route("/{id}", web::put().to(facility_controller::update_facility))
         .route("/{id}", web::delete().to(facility_controller::delete_facility))
+        .route("/all/available", web::get().to(facility_controller::get_facility_available_controller))
 }
