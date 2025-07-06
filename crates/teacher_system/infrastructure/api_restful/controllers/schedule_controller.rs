@@ -1,6 +1,6 @@
 use super::super::config::boostrap::AppState;
 use crate::application::use_cases::schedule_management::ScheduleManagementUseCase;
-use crate::domain::{models::enums::Weekday, models::schedule::Schedule};
+use crate::domain::models::schedule::Schedule;
 use actix_web::{Error, HttpResponse, web};
 
 // Operaciones CRUD básicas
@@ -58,10 +58,8 @@ pub async fn delete_schedule(use_case: web::Data<AppState>, id: web::Path<String
 }
 
 // Operaciones específicas de gestión
-pub async fn suggest_available_times(use_case: web::Data<AppState>, teacher_id: web::Path<String>, payload: web::Json<(i32, Vec<Weekday>)>) -> Result<HttpResponse, Error> {
-    let (duration_minutes, preferred_days) = payload.into_inner();
-
-    match use_case.schedule_use_case.suggest_available_times(&teacher_id, duration_minutes, preferred_days).await {
+pub async fn suggest_available_times(use_case: web::Data<AppState>, teacher_id: web::Path<String>) -> Result<HttpResponse, Error> {
+    match use_case.schedule_use_case.suggest_available_schedule(&teacher_id).await {
         Ok(suggestions) => Ok(HttpResponse::Ok().json(suggestions)),
         Err(e) => {
             eprintln!("Error suggesting times: {}", e);

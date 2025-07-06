@@ -1,18 +1,9 @@
-use crate::domain::{
-    models::enums::Weekday, models::schedule::Schedule,
-    repositories::schedule_repository::ScheduleRepository,
-};
-use crate::infrastructure::database::entities::{
-    course_schedules, courses, facilities, sea_orm_active_enums,
-};
+use crate::domain::{models::enums::Weekday, models::schedule::Schedule, repositories::schedule_repository::ScheduleRepository};
+use crate::infrastructure::database::entities::{course_schedules, courses, facilities, sea_orm_active_enums};
 use async_trait::async_trait;
 use chrono::Utc;
-use sea_orm::{
-    ActiveModelTrait, ColumnTrait, DatabaseConnection, EntityTrait, JoinType, QueryFilter,
-    QuerySelect, RelationTrait, Set,
-};
+use sea_orm::{ActiveModelTrait, ColumnTrait, DatabaseConnection, EntityTrait, JoinType, QueryFilter, QuerySelect, RelationTrait, Set};
 use shared::config::connect_to_supabase;
-use std::str::FromStr;
 
 #[derive(Clone)]
 pub struct SupabaseScheduleRepository {
@@ -41,35 +32,27 @@ impl ScheduleRepository for SupabaseScheduleRepository {
             created_at: Set(Some(Utc::now().naive_utc())),
         };
 
-        schedule_model
-            .insert(&self.db)
-            .await
-            .map_err(|e| e.to_string())?;
+        schedule_model.insert(&self.db).await.map_err(|e| e.to_string())?;
         Ok(())
     }
 
     async fn update_schedule(&self, schedule: &Schedule) -> Result<(), String> {
-        let mut schedule_model: course_schedules::ActiveModel =
-            course_schedules::Entity::find_by_id(&schedule.id)
-                .one(&self.db)
-                .await
-                .map_err(|e| e.to_string())?
-                .ok_or("Schedule not found")?
-                .into();
+        let mut schedule_model: course_schedules::ActiveModel = course_schedules::Entity::find_by_id(&schedule.id)
+            .one(&self.db)
+            .await
+            .map_err(|e| e.to_string())?
+            .ok_or("Schedule not found")?
+            .into();
 
         schedule_model.course_id = Set(schedule.course_id.clone());
         schedule_model.day = Set(sea_orm_active_enums::to_db_daytype(&schedule.day));
         schedule_model.start_time = Set(schedule.start_time);
         schedule_model.end_time = Set(schedule.end_time);
-        schedule_model.session_type =
-            Set(sea_orm_active_enums::to_db_session(&schedule.session_type));
+        schedule_model.session_type = Set(sea_orm_active_enums::to_db_session(&schedule.session_type));
         schedule_model.location_detail = Set(schedule.location_detail.clone());
         schedule_model.facility_id = Set(schedule.facility_id.clone());
 
-        schedule_model
-            .update(&self.db)
-            .await
-            .map_err(|e| e.to_string())?;
+        schedule_model.update(&self.db).await.map_err(|e| e.to_string())?;
         Ok(())
     }
 
@@ -138,15 +121,9 @@ impl ScheduleRepository for SupabaseScheduleRepository {
         Ok(schedules)
     }
 
-    async fn get_schedules_by_course_name(
-        &self,
-        name_course: &str,
-    ) -> Result<Vec<Schedule>, String> {
+    async fn get_schedules_by_course_name(&self, name_course: &str) -> Result<Vec<Schedule>, String> {
         let schedules = course_schedules::Entity::find()
-            .join(
-                JoinType::InnerJoin,
-                course_schedules::Relation::Courses.def(),
-            )
+            .join(JoinType::InnerJoin, course_schedules::Relation::Courses.def())
             .filter(courses::Column::Name.eq(name_course))
             .all(&self.db)
             .await
@@ -191,15 +168,9 @@ impl ScheduleRepository for SupabaseScheduleRepository {
         Ok(schedules)
     }
 
-    async fn get_schedules_by_facility_name(
-        &self,
-        name_facility: &str,
-    ) -> Result<Vec<Schedule>, String> {
+    async fn get_schedules_by_facility_name(&self, name_facility: &str) -> Result<Vec<Schedule>, String> {
         let schedules = course_schedules::Entity::find()
-            .join(
-                JoinType::InnerJoin,
-                course_schedules::Relation::Facilities.def(),
-            )
+            .join(JoinType::InnerJoin, course_schedules::Relation::Facilities.def())
             .filter(facilities::Column::Name.eq(name_facility))
             .all(&self.db)
             .await
@@ -223,10 +194,7 @@ impl ScheduleRepository for SupabaseScheduleRepository {
 
     async fn get_schedules_by_user(&self, user_id: &str) -> Result<Vec<Schedule>, String> {
         let schedules = course_schedules::Entity::find()
-            .join(
-                JoinType::InnerJoin,
-                course_schedules::Relation::Courses.def(),
-            )
+            .join(JoinType::InnerJoin, course_schedules::Relation::Courses.def())
             .filter(courses::Column::TeacherId.eq(user_id))
             .all(&self.db)
             .await
@@ -274,10 +242,7 @@ impl ScheduleRepository for SupabaseScheduleRepository {
     }
 
     async fn delete_schedule(&self, schedule_id: &str) -> Result<(), String> {
-        course_schedules::Entity::delete_by_id(schedule_id)
-            .exec(&self.db)
-            .await
-            .map_err(|e| e.to_string())?;
+        course_schedules::Entity::delete_by_id(schedule_id).exec(&self.db).await.map_err(|e| e.to_string())?;
 
         Ok(())
     }

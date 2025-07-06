@@ -1,9 +1,7 @@
 use crate::domain::{
-    models::{enums::Weekday, schedule::Schedule},
+    models::schedule::Schedule,
     repositories::schedule_repository::ScheduleRepository,
-    services::{
-        scheduling_service::DefaultSchedulingService, validation_service::DefaultValidationService,
-    },
+    services::{scheduling_service::DefaultSchedulingService, validation_service::DefaultValidationService},
 };
 use async_trait::async_trait;
 
@@ -14,12 +12,7 @@ pub trait ScheduleManagementUseCase {
     async fn create(&self, schedule: Schedule) -> Result<(), String>;
     async fn update(&self, schedule: &Schedule) -> Result<(), String>;
     async fn delete(&self, id: &str) -> Result<(), String>;
-    async fn suggest_available_times(
-        &self,
-        teacher_id: &str,
-        duration_minutes: i32,
-        preferred_days: Vec<Weekday>,
-    ) -> Result<Vec<Schedule>, String>;
+    async fn suggest_available_schedule(&self, teacher_id: &str) -> Result<Vec<Schedule>, String>;
 }
 pub struct ScheduleManagementUseCaseImpl {
     schedule_repo: Box<dyn ScheduleRepository + Send + Sync>,
@@ -28,11 +21,7 @@ pub struct ScheduleManagementUseCaseImpl {
 }
 
 impl ScheduleManagementUseCaseImpl {
-    pub fn new(
-        schedule_repo: Box<dyn ScheduleRepository + Send + Sync>,
-        validation_service: DefaultValidationService,
-        scheduling_service: DefaultSchedulingService,
-    ) -> Self {
+    pub fn new(schedule_repo: Box<dyn ScheduleRepository + Send + Sync>, validation_service: DefaultValidationService, scheduling_service: DefaultSchedulingService) -> Self {
         Self {
             schedule_repo,
             validation_service,
@@ -48,17 +37,11 @@ impl ScheduleManagementUseCase for ScheduleManagementUseCaseImpl {
     }
 
     async fn get_by_id(&self, id: &str) -> Result<Schedule, String> {
-        self.schedule_repo
-            .get_schedule_by_id(id)
-            .await?
-            .ok_or_else(|| "Schedule not found".to_string())
+        self.schedule_repo.get_schedule_by_id(id).await?.ok_or_else(|| "Schedule not found".to_string())
     }
 
     async fn create(&self, schedule: Schedule) -> Result<(), String> {
-        let is_available = self
-            .validation_service
-            .check_facility_availability(&schedule.facility_id, &schedule)
-            .await?;
+        let is_available = self.validation_service.check_facility_availability(&schedule.facility_id, &schedule).await?;
 
         if !is_available {
             return Err("Facility not available at requested time".to_string());
@@ -68,10 +51,7 @@ impl ScheduleManagementUseCase for ScheduleManagementUseCaseImpl {
     }
 
     async fn update(&self, schedule: &Schedule) -> Result<(), String> {
-        let is_available = self
-            .validation_service
-            .check_facility_availability(&schedule.facility_id, schedule)
-            .await?;
+        let is_available = self.validation_service.check_facility_availability(&schedule.facility_id, schedule).await?;
 
         if !is_available {
             return Err("Facility not available at requested time".to_string());
@@ -84,14 +64,7 @@ impl ScheduleManagementUseCase for ScheduleManagementUseCaseImpl {
         self.schedule_repo.delete_schedule(id).await
     }
 
-    async fn suggest_available_times(
-        &self,
-        teacher_id: &str,
-        duration_minutes: i32,
-        preferred_days: Vec<Weekday>,
-    ) -> Result<Vec<Schedule>, String> {
-        self.scheduling_service
-            .suggest_available_time(teacher_id, duration_minutes, preferred_days)
-            .await
+    async fn suggest_available_schedule(&self, teacher_id: &str) -> Result<Vec<Schedule>, String> {
+        self.scheduling_service.suggest_available_time(teacher_id).await
     }
 }

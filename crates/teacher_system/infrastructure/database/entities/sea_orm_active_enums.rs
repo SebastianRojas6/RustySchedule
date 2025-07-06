@@ -2,10 +2,7 @@
 
 use sea_orm::entity::prelude::*;
 
-use crate::domain::models::enums::{
-    ContractType as Contract, Curriculum, EnrollmentStatus as Enrollment, SessionType as Session,
-    StudentStatus as Student, Weekday,
-};
+use crate::domain::models::enums::{ContractType as Contract, Curriculum, EnrollmentStatus as Enrollment, SessionType as Session, StudentStatus as Student, Weekday};
 
 #[derive(Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum)]
 #[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "curriculum_type")]
@@ -73,7 +70,7 @@ pub enum StudentStatus {
     #[sea_orm(string_value = "graduated")]
     Graduated,
 }
-#[derive(Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum)]
+#[derive(Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Hash)]
 #[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "teacher_contract")]
 pub enum TeacherContract {
     #[sea_orm(string_value = "contratado")]

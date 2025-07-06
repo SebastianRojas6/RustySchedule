@@ -18,6 +18,7 @@ fn course_routes() -> Scope {
         .route("/{id}", web::get().to(course_controller::get_course_by_id))
         .route("/{id}", web::put().to(course_controller::update_course))
         .route("/{id}", web::delete().to(course_controller::delete_course))
+        .route("/of-user/{id}", web::get().to(course_controller::get_courses_by_user))
 }
 
 /// Rutas relacionadas a `Schedule`
@@ -29,7 +30,7 @@ fn schedule_routes() -> Scope {
         .route("/{id}", web::put().to(schedule_controller::update_schedule))
         .route("/{id}", web::delete().to(schedule_controller::delete_schedule))
         // Operaciones específicas
-        .route("/suggest/{teacher_id}", web::post().to(schedule_controller::suggest_available_times))
+        .route("/suggest/{teacher_id}", web::get().to(schedule_controller::suggest_available_times))
 }
 
 /// Rutas relacionadas a `Facility`

@@ -1,13 +1,8 @@
 use crate::domain::{models::course::Course, repositories::course_repository::CourseRepository};
-use crate::infrastructure::database::entities::{
-    course_schedules, courses, facilities, sea_orm_active_enums,
-};
+use crate::infrastructure::database::entities::{course_schedules, courses, facilities, sea_orm_active_enums};
 use async_trait::async_trait;
 use chrono::Utc;
-use sea_orm::{
-    ActiveModelTrait, ColumnTrait, DatabaseConnection, EntityTrait, JoinType, ModelTrait,
-    QueryFilter, QuerySelect, RelationTrait, Set,
-};
+use sea_orm::{ActiveModelTrait, ColumnTrait, DatabaseConnection, EntityTrait, JoinType, ModelTrait, QueryFilter, QuerySelect, RelationTrait, Set};
 use shared::config::connect_to_supabase;
 
 #[derive(Clone)]
@@ -66,10 +61,7 @@ impl CourseRepository for SupabaseCourseRepository {
             updated_at: Set(Some(Utc::now().naive_utc())),
         };
 
-        new_course
-            .insert(&self.db)
-            .await
-            .map_err(|e| e.to_string())?;
+        new_course.insert(&self.db).await.map_err(|e| e.to_string())?;
         Ok(())
     }
 
@@ -84,8 +76,7 @@ impl CourseRepository for SupabaseCourseRepository {
         course_to_update.code = Set(course.code.clone());
         course_to_update.name = Set(course.name.clone());
         course_to_update.section = Set(course.section);
-        course_to_update.curriculum =
-            Set(sea_orm_active_enums::to_db_curriculum(&course.curriculum));
+        course_to_update.curriculum = Set(sea_orm_active_enums::to_db_curriculum(&course.curriculum));
         course_to_update.capacity = Set(course.capacity);
         course_to_update.credits = Set(course.credits);
         course_to_update.hours_per_week = Set(course.hours_per_week);
@@ -100,10 +91,7 @@ impl CourseRepository for SupabaseCourseRepository {
         course_to_update.active = Set(Some(course.active));
         course_to_update.updated_at = Set(Some(Utc::now().naive_utc()));
 
-        course_to_update
-            .update(&self.db)
-            .await
-            .map_err(|e| e.to_string())?;
+        course_to_update.update(&self.db).await.map_err(|e| e.to_string())?;
         Ok(())
     }
 
@@ -134,10 +122,7 @@ impl CourseRepository for SupabaseCourseRepository {
     }
 
     async fn get_all_courses(&self) -> Result<Vec<Course>, String> {
-        let courses = courses::Entity::find()
-            .all(&self.db)
-            .await
-            .map_err(|e| e.to_string())?;
+        let courses = courses::Entity::find().all(&self.db).await.map_err(|e| e.to_string())?;
 
         Ok(courses
             .into_iter()
@@ -221,19 +206,10 @@ impl CourseRepository for SupabaseCourseRepository {
             .collect())
     }
 
-    async fn get_courses_by_facility_name(
-        &self,
-        name_facility: &str,
-    ) -> Result<Vec<Course>, String> {
+    async fn get_courses_by_facility_name(&self, name_facility: &str) -> Result<Vec<Course>, String> {
         let courses = courses::Entity::find()
-            .join(
-                JoinType::InnerJoin,
-                courses::Relation::CourseSchedules.def(),
-            )
-            .join(
-                JoinType::InnerJoin,
-                course_schedules::Relation::Facilities.def(),
-            )
+            .join(JoinType::InnerJoin, courses::Relation::CourseSchedules.def())
+            .join(JoinType::InnerJoin, course_schedules::Relation::Facilities.def())
             .filter(facilities::Column::Name.eq(name_facility))
             .all(&self.db)
             .await

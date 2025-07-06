@@ -4,6 +4,7 @@ use crate::domain::{
     repositories::{course_repository::CourseRepository, schedule_repository::ScheduleRepository},
 };
 use chrono::NaiveTime;
+use std::collections::VecDeque;
 use std::sync::Arc;
 
 #[derive(Clone)]
@@ -13,101 +14,147 @@ pub struct DefaultSchedulingService {
 }
 
 impl DefaultSchedulingService {
-    pub fn new(
-        course_repo: Arc<dyn CourseRepository + Send + Sync>,
-        schedule_repo: Arc<dyn ScheduleRepository + Send + Sync>,
-    ) -> Self {
-        Self {
-            course_repo,
-            schedule_repo,
-        }
+    pub fn new(course_repo: Arc<dyn CourseRepository + Send + Sync>, schedule_repo: Arc<dyn ScheduleRepository + Send + Sync>) -> Self {
+        Self { course_repo, schedule_repo }
     }
 }
 
 impl DefaultSchedulingService {
-    pub async fn suggest_available_time(
-        &self,
-        teacher_id: &str,
-        duration_minutes: i32,
-        preferred_days: Vec<Weekday>,
-    ) -> Result<Vec<Schedule>, String> {
-        let teacher_courses = self.course_repo.get_courses_by_user(&teacher_id).await?;
+    pub async fn suggest_available_time(&self, teacher_id: &str) -> Result<Vec<Schedule>, String> {
+        // 1. Obtener todos los cursos del profesor
+        let courses = self.course_repo.get_courses_by_user(teacher_id).await?;
 
-        let mut busy_schedules = Vec::new();
-        for course in teacher_courses {
-            match self.schedule_repo.get_schedules_by_course(&course.id).await {
-                Ok(schedule) => busy_schedules.extend(schedule),
-                Err(e) => return Err(e),
-            }
+        // 2. Obtener los horarios existentes del profesor
+        let mut existing_schedules = Vec::new();
+        for course in &courses {
+            let schedules = self.schedule_repo.get_schedules_by_course(&course.id).await?;
+            existing_schedules.extend(schedules);
         }
 
-        let work_start = NaiveTime::from_hms_opt(8, 0, 0).unwrap();
-        let work_end = NaiveTime::from_hms_opt(22, 0, 0).unwrap();
-        let duration = chrono::Duration::minutes(duration_minutes as i64);
-        let interval = chrono::Duration::minutes(30);
-
-        let days_to_check = if preferred_days.is_empty() {
-            vec![
-                Weekday::Monday,
-                Weekday::Tuesday,
-                Weekday::Wednesday,
-                Weekday::Thursday,
-                Weekday::Friday,
-                Weekday::Saturday,
-                Weekday::Sunday,
-            ]
-        } else {
-            preferred_days
-        };
-
-        let mut available_slots = Vec::new();
-
-        for day in days_to_check {
-            let mut current_time = work_start;
-
-            while current_time + duration <= work_end {
-                let slot_end = current_time + duration;
-                let proposed_slot = Schedule {
-                    id: "temp".to_string(),
-                    facility_id: "".to_string(),
-                    day: day.clone(),
-                    start_time: current_time,
-                    end_time: slot_end,
-                    session_type: SessionType::Theory,
-                    location_detail: None,
-                    created_at: None,
-                    course_id: "temp_course".to_string(),
-                };
-
-                let is_available = !busy_schedules
+        // 3. Calcular horas pendientes por asignar por curso
+        let mut courses_with_pending_hours: VecDeque<_> = courses
+            .iter()
+            .map(|course| {
+                let assigned_hours: i32 = existing_schedules
                     .iter()
-                    .any(|busy| busy.conflicts_with(&proposed_slot));
+                    .filter(|s| s.course_id == course.id)
+                    .map(|s| (s.end_time - s.start_time).num_hours() as i32)
+                    .sum();
 
-                if is_available {
-                    available_slots.push(proposed_slot);
+                (course, course.hours_per_week - assigned_hours)
+            })
+            .filter(|(_, pending)| *pending > 0)
+            .collect();
+
+        // 4. Generar posibles horarios
+        let mut suggested_schedules = Vec::new();
+        let days = [Weekday::Monday, Weekday::Tuesday, Weekday::Wednesday, Weekday::Thursday, Weekday::Friday, Weekday::Saturday];
+
+        let min_time = NaiveTime::from_hms_opt(8, 0, 0).unwrap();
+        let max_time = NaiveTime::from_hms_opt(22, 0, 0).unwrap();
+        let time_slot_duration = chrono::Duration::hours(1);
+
+        while let Some((course, pending_hours)) = courses_with_pending_hours.pop_front() {
+            let mut hours_assigned = 0;
+
+            // Intentar asignar bloques de 2 horas preferentemente
+            let preferred_duration = chrono::Duration::hours(2).min(chrono::Duration::hours(pending_hours as i64));
+
+            'day_loop: for &day in &days {
+                let mut current_time = min_time;
+
+                while current_time + preferred_duration <= max_time {
+                    let end_time = current_time + preferred_duration;
+                    let test_schedule = Schedule {
+                        id: "temp".to_string(),
+                        course_id: course.id.clone(),
+                        day,
+                        start_time: current_time,
+                        end_time,
+                        session_type: SessionType::Theory, // Tipo por defecto
+                        location_detail: None,
+                        created_at: None,
+                        facility_id: "".to_string(), // Se asignará después
+                    };
+
+                    // Verificar conflicto con horarios existentes
+                    let has_conflict = existing_schedules.iter().chain(suggested_schedules.iter()).any(|s| s.conflicts_with(&test_schedule));
+
+                    if !has_conflict {
+                        // Validar que el profesor no tenga otro curso a esta hora
+                        let is_valid = self.validate_schedule(teacher_id, &test_schedule).await?;
+
+                        if is_valid {
+                            let mut new_schedule = test_schedule.clone();
+                            new_schedule.id = format!("suggested-{}", suggested_schedules.len() + 1);
+                            suggested_schedules.push(new_schedule);
+                            hours_assigned += preferred_duration.num_hours() as i32;
+
+                            if hours_assigned >= pending_hours {
+                                break 'day_loop;
+                            }
+                        }
+                    }
+
+                    current_time += time_slot_duration;
                 }
+            }
 
-                current_time = current_time + interval;
+            // Si no asignó todas las horas, volver a poner en la cola
+            if hours_assigned < pending_hours {
+                courses_with_pending_hours.push_back((course, pending_hours - hours_assigned));
             }
         }
 
-        Ok(available_slots)
+        // 5. Si aún quedan horas por asignar, intentar con bloques más pequeños
+        if !courses_with_pending_hours.is_empty() {
+            for (course, pending_hours) in courses_with_pending_hours {
+                let mut hours_assigned = 0;
+
+                'day_loop: for &day in &days {
+                    let mut current_time = min_time;
+
+                    while current_time + time_slot_duration <= max_time {
+                        let end_time = current_time + time_slot_duration;
+                        let test_schedule = Schedule {
+                            id: "temp".to_string(),
+                            course_id: course.id.clone(),
+                            day,
+                            start_time: current_time,
+                            end_time,
+                            session_type: SessionType::Theory,
+                            location_detail: None,
+                            created_at: None,
+                            facility_id: "".to_string(),
+                        };
+
+                        let has_conflict = existing_schedules.iter().chain(suggested_schedules.iter()).any(|s| s.conflicts_with(&test_schedule));
+
+                        if !has_conflict && self.validate_schedule(teacher_id, &test_schedule).await? {
+                            let mut new_schedule = test_schedule.clone();
+                            new_schedule.id = format!("suggested-{}", suggested_schedules.len() + 1);
+                            suggested_schedules.push(new_schedule);
+                            hours_assigned += 1;
+
+                            if hours_assigned >= pending_hours {
+                                break 'day_loop;
+                            }
+                        }
+
+                        current_time += time_slot_duration;
+                    }
+                }
+            }
+        }
+
+        Ok(suggested_schedules)
     }
 
-    pub async fn validate_schedule(
-        &self,
-        teacher_id: &str,
-        schedule: &Schedule,
-    ) -> Result<bool, String> {
+    pub async fn validate_schedule(&self, teacher_id: &str, schedule: &Schedule) -> Result<bool, String> {
         let teacher_courses = self.course_repo.get_courses_by_user(&teacher_id).await?;
 
         for course in teacher_courses {
-            let existing_schedule = self
-                .schedule_repo
-                .get_schedules_by_course(&course.id)
-                .await?
-                .iter()
-                .any(|s| s.conflicts_with(schedule));
+            let existing_schedule = self.schedule_repo.get_schedules_by_course(&course.id).await?.iter().any(|s| s.conflicts_with(schedule));
 
             if existing_schedule {
                 return Ok(false);

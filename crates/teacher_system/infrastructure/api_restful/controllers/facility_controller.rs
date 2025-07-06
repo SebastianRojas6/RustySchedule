@@ -56,3 +56,13 @@ pub async fn delete_facility(use_case: web::Data<AppState>, id: web::Path<String
         }
     }
 }
+
+pub async fn get_facility_available(use_case: web::Data<AppState>) -> Result<HttpResponse, Error> {
+    match use_case.facility_use_case.get_facility_available().await {
+        Ok(available_facilities) => Ok(HttpResponse::Ok().json(available_facilities)),
+        Err(e) => {
+            eprintln!("Error fetching available facilities: {}", e);
+            Err(actix_web::error::ErrorInternalServerError("Internal server error"))
+        }
+    }
+}
