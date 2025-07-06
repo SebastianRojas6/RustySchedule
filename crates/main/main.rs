@@ -2,6 +2,7 @@ use actix_cors::Cors;
 use actix_web::middleware::Logger;
 use actix_web::{web, App, HttpServer};
 use dotenv::dotenv;
+
 use student_system::actix_web_router::configure_enrollment_routes;
 use student_system::bootstrap::init_state;
 use teacher_system::infrastructure::api_restful::config::boostrap::bootstrap_teacher;

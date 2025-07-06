@@ -1,5 +1,7 @@
 pub mod get_available_courses_handler;
 pub mod validate_enrollment_handler;
+pub mod register_availability_handler;
 
 pub use get_available_courses_handler::get_available_courses_handler;
 pub use validate_enrollment_handler::validate_enrollment_handler;
+pub use register_availability_handler::register_availability_handler;

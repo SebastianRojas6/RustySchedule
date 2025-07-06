@@ -1,8 +1,15 @@
-use sea_orm::{ RelationTrait, PaginatorTrait, EntityTrait, ColumnTrait, QueryFilter, QuerySelect, EnumIter, DeriveColumn, JoinType };
+use sea_orm::{ Set, RelationTrait, PaginatorTrait, EntityTrait, ColumnTrait, QueryFilter, QuerySelect, EnumIter, DeriveColumn, JoinType };
 
 use crate::enrollment::infrastructure::entity::{users, courses, enrollments, course_prerequisites};
 use crate::enrollment::domain::*;
 use crate::availability::domain::repository::EnrollmentAvailabilityRepository;
+
+use crate::enrollment::infrastructure::entity::availabilities;
+
+use crate::availability::domain::availability::Availability;
+
+use uuid::Uuid;
+use chrono::Utc;
 
 pub struct SupabaseAvailabilityRepository {
     pub db: sea_orm::DatabaseConnection,
@@ -185,4 +192,40 @@ impl EnrollmentAvailabilityRepository for SupabaseAvailabilityRepository {
 
         Ok(passed > 0)
     }
+
+    async fn delete_all_by_student(&self, student_id: &str) -> Result<(), String> {
+    availabilities::Entity::delete_many()
+        .filter(availabilities::Column::StudentId.eq(student_id))
+        .exec(&self.db)
+        .await
+        .map_err(|e| e.to_string())?;
+
+    Ok(())
+}
+
+    async fn save_all(&self, availabilities_list: Vec<Availability>) -> Result<(), String> {
+    let now = Utc::now().naive_utc();
+
+    let models: Vec<availabilities::ActiveModel> = availabilities_list
+        .into_iter()
+        .map(|a| availabilities::ActiveModel {
+            id: Set(Uuid::new_v4().to_string()),
+            student_id: Set(a.student_id),
+            day: Set(a.day.into()),
+            start_time: Set(a.start_time),
+            end_time: Set(a.end_time),
+            created_at: Set(Some(now)),
+            updated_at: Set(Some(now)),
+        })
+        .collect();
+
+    availabilities::Entity::insert_many(models)
+        .exec(&self.db)
+        .await
+        .map_err(|e| e.to_string())?;
+
+    Ok(())
+}
+
+
 }
