@@ -131,3 +131,29 @@ impl FromStr for CurriculumType {
         }
     }
 }
+
+impl fmt::Display for DayType {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let s = match self {
+            DayType::Monday => "monday",
+            DayType::Tuesday => "tuesday",
+            DayType::Wednesday => "wednesday",
+            DayType::Thursday => "thursday",
+            DayType::Friday => "friday",
+            DayType::Saturday => "saturday",
+            DayType::Sunday => "sunday",
+        };
+        write!(f, "{}", s)
+    }
+}
+
+impl fmt::Display for StudentStatus {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let s = match self {
+            StudentStatus::Regular => "regular",
+            StudentStatus::Observado => "observado",
+            StudentStatus::Graduated => "graduated",
+        };
+        write!(f, "{}", s)
+    }
+}

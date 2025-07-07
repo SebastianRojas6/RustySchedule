@@ -25,6 +25,9 @@ use crate::availability::infrastructure::controllers::{
     register_availability_handler,
 };
 
+use crate::suggestion::infrastructure::fetch_available_data_handler::generate_schedule_suggestion_handler;
+
+
 pub fn configure_enrollment_routes(cfg: &mut ServiceConfig) {
     cfg.service(
         web::scope("/student")
@@ -49,5 +52,7 @@ pub fn configure_enrollment_routes(cfg: &mut ServiceConfig) {
             .route("/available-courses", web::get().to(get_available_courses_handler))
             .route("/validate", web::post().to(validate_enrollment_handler))
             .route("/{student_id}/availability", web::post().to(register_availability_handler))
-    );
+             
+            .route("/{student_id}/schedule-suggestion", web::get().to(generate_schedule_suggestion_handler))
+  ); 
 }
