@@ -3,6 +3,8 @@ use crate::enrollment::infrastructure::entity::sea_orm_active_enums::UserRole;
 
 use super::super::domain::{Enrollment, EnrollmentId, UserId, CourseId, CreditAmount, UserCode};
 
+use crate::enrollment::domain::available_course::{CourseData, CourseWithSections};
+
 #[async_trait]
 pub trait EnrollmentRepository: Send + Sync {
     async fn find_by_id(&self, id: &EnrollmentId) -> Option<Enrollment>;
@@ -26,5 +28,15 @@ pub trait EnrollmentRepository: Send + Sync {
     async fn count_enrolled_courses(&self, user_id: &UserId) -> usize;
 
     async fn find_user_info_by_code(&self, user_code: &UserCode) -> Option<(String, Option<String>, String, String, UserRole)>;
+    
+    async fn find_sections_by_course_code(&self, course_code: &str) -> Result<CourseWithSections, String>;
+
+    async fn find_active_courses_by_curriculum(&self, semester: &str) -> Result<Vec<CourseData>, String>;
+
+    async fn find_prerequisites_by_course_id(&self, course_id: &str) -> Result<Vec<CourseId>, String>;
+
+    async fn count_sections_by_course_code(&self, course_code: &str) -> Result<usize, String>;
+
+    async fn find_active_courses_by_semester(&self, semester: &str) -> Result<Vec<CourseData>, String>;
 
 }

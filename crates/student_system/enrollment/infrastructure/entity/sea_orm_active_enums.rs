@@ -3,6 +3,7 @@
 use sea_orm::entity::prelude::*;
 use std::fmt;
 use serde::{Deserialize, Serialize};
+use std::str::FromStr;
 
 #[derive(Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize)]
 #[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "curriculum_type")]
@@ -115,5 +116,18 @@ impl fmt::Display for CurriculumType {
             CurriculumType::Prerequisite => "prerequisite",
         };
         write!(f, "{}", s)
+    }
+}
+
+impl FromStr for CurriculumType {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s.to_lowercase().as_str() {
+            "obligatory" => Ok(CurriculumType::Obligatory),
+            "elective" => Ok(CurriculumType::Elective),
+            "prerequisite" => Ok(CurriculumType::Prerequisite),
+            _ => Err(format!("CurriculumType desconocido: {}", s)),
+        }
     }
 }

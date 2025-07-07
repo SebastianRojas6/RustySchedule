@@ -12,6 +12,7 @@ pub mod semester_parity;
 pub mod error;
 pub mod user_info;
 pub mod user_code;
+pub mod available_course;
 
 pub use course_id::CourseId;
 pub use enrollment::Enrollment;

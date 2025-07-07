@@ -10,6 +10,8 @@ use crate::enrollment::infrastructure::controllers::{
     enroll_in_course_handler,
     get_user_info_handler,
     get_user_data_by_code_handler,
+    find_available_courses_to_enroll_handler,
+    find_available_sections_by_course_code_handler,
 };
 
 use crate::crud_enrollment::infrastructure::controllers::{
@@ -36,6 +38,10 @@ pub fn configure_enrollment_routes(cfg: &mut ServiceConfig) {
             .route("/course/enroll", web::post().to(enroll_in_course_handler))
             .route("/{student_id}/info", web::get().to(get_user_info_handler))
             .route("/code/{user_code}/info", web::get().to(get_user_data_by_code_handler))
+
+            //Nuevo
+            .route("/{student_id}/available-courses", web::get().to(find_available_courses_to_enroll_handler))
+            .route("/available-sections/{code}", web::get().to(find_available_sections_by_course_code_handler))
 
             .route("/{student_id}/enrollments", web::get().to(get_schedule_handler))
             .route("/{id}/withdraw", web::post().to(withdraw_enrollment_handler))
