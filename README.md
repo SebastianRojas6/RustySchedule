@@ -396,3 +396,23 @@ Modifica una sugerencia existente de horario para ajustarse a la disponibilidad 
 **Nota:** el `schedule_id` que se debe de pasar es el "id" del schedule según la db
 
 ---
+
+### 5. Conocer si un usuario tiene horario asignado
+
+**PUT** `/teacher/schedules/verify/{user_id}`
+
+**Descripción:**  
+Simplemente devuelve un bool donde `false` indica que no tiene ningún horario designado y `true` lo contrario.
+
+**Parámetros:**
+
+- `user_id` (string): ID del usuario a verificar
+
+**Respuesta exitosa:**
+```json
+true
+```
+
+**Nota:** el `user_id` que se debe de pasar es el "id" del schedule según la db
+
+---

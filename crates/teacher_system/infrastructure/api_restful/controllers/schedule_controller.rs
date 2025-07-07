@@ -67,3 +67,13 @@ pub async fn suggest_available_times(use_case: web::Data<AppState>, teacher_id: 
         }
     }
 }
+
+pub async fn verify_user_schedule_controller(use_case: web::Data<AppState>, user_id: web::Path<String>) -> Result<HttpResponse, Error> {
+    match use_case.schedule_use_case.verify_schedule_user(&user_id).await {
+        Ok(has_schedule) => Ok(HttpResponse::Ok().json(has_schedule)),
+        Err(e) => {
+            eprintln!("Error verify times: {}", e);
+            Err(actix_web::error::ErrorInternalServerError("Internal server error"))
+        }
+    }
+}

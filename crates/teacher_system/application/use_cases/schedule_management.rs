@@ -13,6 +13,7 @@ pub trait ScheduleManagementUseCase {
     async fn update(&self, schedule: &Schedule) -> Result<Schedule, String>;
     async fn delete(&self, id: &str) -> Result<(), String>;
     async fn suggest_available_schedule(&self, teacher_id: &str) -> Result<Vec<Schedule>, String>;
+    async fn verify_schedule_user(&self, user_id: &str) -> Result<bool, String>;
 }
 pub struct ScheduleManagementUseCaseImpl {
     schedule_repo: Box<dyn ScheduleRepository + Send + Sync>,
@@ -51,12 +52,6 @@ impl ScheduleManagementUseCase for ScheduleManagementUseCaseImpl {
     }
 
     async fn update(&self, schedule: &Schedule) -> Result<Schedule, String> {
-        // let is_available = self.validation_service.check_facility_availability(&schedule.facility_id, schedule).await?;
-
-        // if !is_available {
-        //     return Err("Facility not available at requested time".to_string());
-        // }
-
         self.schedule_repo.update_schedule(schedule).await
     }
 
@@ -66,5 +61,9 @@ impl ScheduleManagementUseCase for ScheduleManagementUseCaseImpl {
 
     async fn suggest_available_schedule(&self, teacher_id: &str) -> Result<Vec<Schedule>, String> {
         self.scheduling_service.suggest_available_time(teacher_id).await
+    }
+
+    async fn verify_schedule_user(&self, user_id: &str) -> Result<bool, String> {
+        self.scheduling_service.verify_schedule_by_user(user_id).await
     }
 }

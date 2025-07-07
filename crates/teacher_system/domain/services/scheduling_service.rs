@@ -246,4 +246,10 @@ impl DefaultSchedulingService {
 
         Ok(())
     }
+
+    pub async fn verify_schedule_by_user(&self, user_id: &str) -> Result<bool, String> {
+        let schedules = self.schedule_repo.get_schedules_by_user(user_id).await?;
+
+        Ok(!schedules.is_empty())
+    }
 }

@@ -31,6 +31,7 @@ fn schedule_routes() -> Scope {
         .route("/{id}", web::delete().to(schedule_controller::delete_schedule))
         // Operaciones específicas
         .route("/suggest/{teacher_id}", web::get().to(schedule_controller::suggest_available_times))
+        .route("/verify/{user_id}", web::get().to(schedule_controller::verify_user_schedule_controller))
 }
 
 /// Rutas relacionadas a `Facility`
