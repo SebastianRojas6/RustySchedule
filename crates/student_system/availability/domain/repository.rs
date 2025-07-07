@@ -1,7 +1,9 @@
 use async_trait::async_trait;
 use crate::enrollment::domain::{
-    CourseId, CurriculumId, CreditAmount, CourseCycle, SemesterParity, StudentStatus, UserId,
+    CourseId, CurriculumId, CreditAmount, CourseCycle, SemesterParity, StudentStatus, UserId, 
 };
+
+use super::availability::Availability;
 
 #[async_trait]
 pub trait EnrollmentAvailabilityRepository: Send + Sync {
@@ -19,4 +21,7 @@ pub trait EnrollmentAvailabilityRepository: Send + Sync {
     async fn count_course_repetitions(&self, student_id: &UserId, course_id: &CourseId) -> anyhow::Result<u8>;
     async fn has_schedule_conflict(&self, student_id: &UserId, course_id: &CourseId, section_id: &str) -> anyhow::Result<bool>;
     async fn has_already_passed_course(&self, student_id: &UserId, course_id: &CourseId) -> anyhow::Result<bool>;
+
+    async fn delete_all_by_student(&self, student_id: &str) -> Result<(), String>;
+    async fn save_all(&self, availabilities: Vec<Availability>) -> Result<(), String>;
 }
