@@ -53,6 +53,7 @@ pub fn configure_enrollment_routes(cfg: &mut ServiceConfig) {
             .route("/validate", web::post().to(validate_enrollment_handler))
             .route("/{student_id}/availability", web::post().to(register_availability_handler))
              
+             //nuevo
             .route("/{student_id}/schedule-suggestion", web::get().to(generate_schedule_suggestion_handler))
   ); 
 }
