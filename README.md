@@ -399,7 +399,7 @@ Modifica una sugerencia existente de horario para ajustarse a la disponibilidad 
 
 ### 5. Conocer si un usuario tiene horario asignado
 
-**PUT** `/teacher/schedules/verify/{user_id}`
+**GET** `/teacher/schedules/verify/{user_id}`
 
 **Descripción:**  
 Simplemente devuelve un bool donde `false` indica que no tiene ningún horario designado y `true` lo contrario.
@@ -414,5 +414,48 @@ true
 ```
 
 **Nota:** el `user_id` que se debe de pasar es el "id" del schedule según la db
+
+---
+
+### 6. Obtener todas los horarios disponibles
+
+**GET** `/teacher/facilities/all/available`
+
+**Descripción:**  
+Devuelve todos los salones que están disponibles por cada día de Lunes a Sábado y que horas tiene disponible cada día.
+
+**Respuesta exitosa:**
+```json
+[
+    {
+        "facility": {
+            "id": "211",
+            "name": "Aula 211",
+            "capacity": 40,
+            "facility_type": "classroom",
+            "created_at": "2025-06-21 17:40:39.813646"
+        },
+        "available_slots": {
+            "Monday": [
+                [
+                    "11:00:00",
+                    "12:00:00"
+                ],
+                [
+                    "13:00:00",
+                    "14:00:00"
+                ],
+                [
+                    "16:00:00",
+                    "22:00:00"
+                ]
+            ],
+        .
+        .
+        .
+        }
+    }
+]
+```
 
 ---
