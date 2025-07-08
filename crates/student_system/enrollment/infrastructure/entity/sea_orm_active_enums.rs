@@ -3,6 +3,7 @@
 use sea_orm::entity::prelude::*;
 use std::fmt;
 use serde::{Deserialize, Serialize};
+use std::str::FromStr;
 
 #[derive(Debug, Clone, PartialEq, Eq, EnumIter, DeriveActiveEnum, Serialize, Deserialize)]
 #[sea_orm(rs_type = "String", db_type = "Enum", enum_name = "curriculum_type")]
@@ -113,6 +114,45 @@ impl fmt::Display for CurriculumType {
             CurriculumType::Obligatory => "obligatory",
             CurriculumType::Elective => "elective",
             CurriculumType::Prerequisite => "prerequisite",
+        };
+        write!(f, "{}", s)
+    }
+}
+
+impl FromStr for CurriculumType {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s.to_lowercase().as_str() {
+            "obligatory" => Ok(CurriculumType::Obligatory),
+            "elective" => Ok(CurriculumType::Elective),
+            "prerequisite" => Ok(CurriculumType::Prerequisite),
+            _ => Err(format!("CurriculumType desconocido: {}", s)),
+        }
+    }
+}
+
+impl fmt::Display for DayType {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let s = match self {
+            DayType::Monday => "monday",
+            DayType::Tuesday => "tuesday",
+            DayType::Wednesday => "wednesday",
+            DayType::Thursday => "thursday",
+            DayType::Friday => "friday",
+            DayType::Saturday => "saturday",
+            DayType::Sunday => "sunday",
+        };
+        write!(f, "{}", s)
+    }
+}
+
+impl fmt::Display for StudentStatus {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let s = match self {
+            StudentStatus::Regular => "regular",
+            StudentStatus::Observado => "observado",
+            StudentStatus::Graduated => "graduated",
         };
         write!(f, "{}", s)
     }

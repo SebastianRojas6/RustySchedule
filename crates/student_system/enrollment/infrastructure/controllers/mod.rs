@@ -9,6 +9,7 @@ pub mod enroll_in_course_dto;
 pub mod enroll_in_course_controller;
 pub mod user_info_controller;
 pub mod user_data_by_code_controller;
+pub mod available_courses_controller;
 
 pub use find_by_id_controller::find_by_id_handler;
 pub use find_by_student_and_course_controller::find_by_student_and_course_handler;
@@ -21,3 +22,4 @@ pub use enroll_in_course_dto::EnrollInCourseRequestDto;
 pub use enrollment_attempts_controller::enrollment_attempts_handler;
 pub use user_info_controller::get_user_info_handler;
 pub use user_data_by_code_controller::get_user_data_by_code_handler;
+pub use available_courses_controller::{find_available_courses_to_enroll_handler, find_available_sections_by_course_code_handler};
