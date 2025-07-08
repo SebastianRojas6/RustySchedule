@@ -45,6 +45,7 @@
     }
   ]
 }
+```
 
 ### 🧭 Obtener sugerencia de horario
 
