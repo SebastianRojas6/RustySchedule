@@ -28,6 +28,7 @@ pub async fn find_sections_by_course_code(
 
         for s in schedule {
             all_sections.push(AvailableSection {
+                course_id: c.id.clone(),
                 available_spots: c.available_spots.unwrap_or(0),
                 teacher_id: c.teacher_id.clone(),
                 day: s.day,
@@ -39,6 +40,7 @@ pub async fn find_sections_by_course_code(
     }
 
     Ok(CourseWithSections {
+        id: course.id.clone(),
         nombre_curso: course.name.clone(),
         codigo: course.code.clone(),
         num_ciclo: course.cycle,

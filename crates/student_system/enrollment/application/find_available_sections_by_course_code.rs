@@ -22,6 +22,7 @@ impl<'a> FindAvailableSectionsByCourseCodeUseCase<'a> {
             .collect();
 
         Ok(CourseSections {
+            id: course_with_sections.id.clone(),
             nombre_curso: course_with_sections.nombre_curso,
             codigo: course_with_sections.codigo,
             num_ciclo: course_with_sections.num_ciclo,

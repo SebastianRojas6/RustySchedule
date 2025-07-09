@@ -14,6 +14,7 @@ pub struct AvailableCourse {
 
 #[derive(Debug, Clone, Serialize)]
 pub struct AvailableSection {
+    pub course_id: String,
     pub available_spots: i32,
     pub teacher_id: String,
     pub day: DayType,
@@ -23,6 +24,7 @@ pub struct AvailableSection {
 }
 
 pub struct CourseWithSections {
+    pub id: String,
     pub nombre_curso: String,
     pub codigo: String,
     pub num_ciclo: i32,
@@ -32,6 +34,7 @@ pub struct CourseWithSections {
 
 #[derive(Debug, Clone, Serialize)]
 pub struct CourseSections {
+    pub id: String,
     pub nombre_curso: String,
     pub codigo: String,
     pub num_ciclo: i32,
