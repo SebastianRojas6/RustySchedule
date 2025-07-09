@@ -1,6 +1,6 @@
 use crate::enrollment::domain::{
     repository::EnrollmentRepository,
-    available_course::{AvailableSection, CourseCode, CourseSections},
+    available_course::{AvailableSection, CourseSections},
 };
 
 pub struct FindAvailableSectionsByCourseCodeUseCase<'a> {
@@ -12,8 +12,8 @@ impl<'a> FindAvailableSectionsByCourseCodeUseCase<'a> {
         Self { repo }
     }
 
-    pub async fn execute(&self, code: &CourseCode) -> Result<CourseSections, String> {
-        let course_with_sections = self.repo.find_sections_by_course_code(&code.0).await?;
+    pub async fn execute(&self, course_id: &str) -> Result<CourseSections, String> {
+        let course_with_sections = self.repo.find_sections_by_course_code(course_id).await?;
 
         let available_sections: Vec<AvailableSection> = course_with_sections
             .secciones

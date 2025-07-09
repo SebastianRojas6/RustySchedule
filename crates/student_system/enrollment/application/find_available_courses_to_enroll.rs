@@ -60,6 +60,7 @@ impl<'a> FindAvailableCoursesToEnrollUseCase<'a> {
 
             available.push(AvailableCourse {
                 code: course.code.clone(),
+                id: course.id.clone(),
                 name: course.name,
                 cycle: course.cycle,
                 credits: course.credits,

@@ -48,6 +48,7 @@ pub async fn find_available_courses_to_enroll(
                 .map_err(|e| format!("Error al contar secciones para curso {}: {}", course.code, e))?;
 
             available_courses.push(AvailableCourse {
+                id: course.id.clone(),
                 code: course.code,
                 name: course.name,
                 cycle: course.cycle,

@@ -4,6 +4,7 @@ use crate::enrollment::infrastructure::entity::sea_orm_active_enums::{DayType, S
 
 #[derive(Debug, Clone, Serialize)]
 pub struct AvailableCourse {
+    pub id: String,
     pub code: String,
     pub name: String,
     pub cycle: i32,

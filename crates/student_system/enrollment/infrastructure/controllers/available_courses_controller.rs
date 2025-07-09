@@ -1,6 +1,6 @@
 use actix_web::{web, HttpResponse};
 use crate::bootstrap::AppState;
-use crate::enrollment::domain::{user_id::UserId, available_course::CourseCode};
+use crate::enrollment::domain::user_id::UserId;
 use crate::enrollment::application::{
     find_available_courses_to_enroll::FindAvailableCoursesToEnrollUseCase,
     find_available_sections_by_course_code::FindAvailableSectionsByCourseCodeUseCase,
@@ -42,7 +42,7 @@ pub async fn find_available_sections_by_course_code_handler(
     let repo = state.enrollment_repo.as_ref();
     let use_case = FindAvailableSectionsByCourseCodeUseCase::new(repo);
 
-    let code = CourseCode(path.into_inner().code);
+    let code = path.into_inner().code;
 
     match use_case.execute(&code).await {
         Ok(course_sections) => HttpResponse::Ok().json(course_sections),

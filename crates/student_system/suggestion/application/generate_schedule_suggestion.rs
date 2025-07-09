@@ -1,9 +1,8 @@
 use crate::enrollment::application::find_available_courses_to_enroll::FindAvailableCoursesToEnrollUseCase;
 use crate::enrollment::application::find_available_sections_by_course_code::FindAvailableSectionsByCourseCodeUseCase;
-use crate::enrollment::domain::available_course::CourseCode as EnrollmentCourseCode;
 use crate::enrollment::domain::user_id::UserId;
 use crate::suggestion::domain::repository::SuggestionRepository;
-use crate::suggestion::domain::section::{CourseCode, Day, SectionId, TimeSlot};
+use crate::suggestion::domain::section::{Day, SectionId, TimeSlot};
 use crate::suggestion::domain::suggestion::ScheduleSuggestion;
 use chrono::NaiveTime;
 
@@ -59,11 +58,10 @@ impl<'a> GenerateScheduleSuggestionUseCase<'a> {
                 continue;
             }
 
-            let course_code = CourseCode(course.code.clone());
             let course_sections = self
-                .section_use_case
-                .execute(&EnrollmentCourseCode::from(course_code.clone()))
-                .await?;
+            .section_use_case
+            .execute(&course.code)
+            .await?;
 
             for section in &course_sections.secciones {
                 let section_times = vec![TimeSlot {
@@ -92,9 +90,9 @@ impl<'a> GenerateScheduleSuggestionUseCase<'a> {
                 }
 
                 scheduled_times.extend(section_times);
-                selected_sections.push(SectionId(course.code.clone()));
+                selected_sections.push(SectionId(course.id.clone()));
                 total_credits += course.credits;
-                break; // Solo una sección por curso
+                break;
             }
         }
 
